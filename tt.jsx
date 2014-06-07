@@ -161,7 +161,7 @@ UN.prototype.getSize = function() {
 var NSC = React.createClass({
     render: function() {
         var contents = this.props.contents;
-        var namespace = contents[1].reverse().join('.');
+        var namespace = contents[1].slice().reverse().join('.');
         var trans = new Transform().move(0, 30);
         return <Group tranform={this.props.trans}>
             <Write>{namespace}</Write>
