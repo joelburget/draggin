@@ -22,13 +22,13 @@ data Raw = Var Name
          | RConstant Const
 */
 
-// TODO - but ordering of contents matters, right?
 var Raw = function(tag, component) {
     this.tag = tag;
     this.component = component;
 };
 
 Raw.prototype = new Renderable();
+
 
 // Var Name
 

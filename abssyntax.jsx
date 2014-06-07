@@ -69,6 +69,8 @@ data Const = I Int | BI Integer | Fl Double | Ch Char | Str String
 // example:
 // Int -> Int
 //
+// http://pastebin.com/0BSsKLAm
+//
 // PPi (Exp [] Dynamic False)
 // 	   (UN "__pi_arg")
 // 	   (PConstant
@@ -78,7 +80,30 @@ data Const = I Int | BI Integer | Fl Double | Ch Char | Str String
 //
 // a -> a
 //
+// http://pastebin.com/xevYJkdx
+//
 // PPi (Exp [] Dynamic False)
 // 	   (UN "__pi_arg")
 // 	   (PRef (...) (UN "a"))
 // 	   (PRef ...)
+
+
+var PTerm = function(tag, component) {
+    this.tag = tag;
+    this.component = component;
+};
+
+PTerm.prototype = new Renderable();
+
+// PPi Plicity Name PTerm PTerm -- ^ (n : t1) -> t2
+
+var PPiC = React.createClass({
+    render: function() {
+        return <Group>
+        </Group>;
+    }
+});
+
+var PPi = function(contents) {
+    this.contents = contents;
+};

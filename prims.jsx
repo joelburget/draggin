@@ -22,6 +22,7 @@ var colors = {
 /* protocol:
  * - render : () -> React Component
  * - getSize : () -> {w, h}
+ * - toJSON : () -> object
  */
 var Renderable = function() {};
 
@@ -33,9 +34,16 @@ Renderable.prototype.render = function(trans) {
         this.children.map(x => x.render())
     );
 };
-// override this!
+
+// override these!
 Renderable.prototype.getSize = () => { return {w: 0, h: 0}; };
 Renderable.prototype.children = [];
+Renderable.prototype.toJSON = function() {
+    return {
+        tag: this.tag,
+        contents: this.children
+    };
+};
 
 var RightArr = React.createClass({
     render: function() {

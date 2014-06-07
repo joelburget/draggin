@@ -7,10 +7,10 @@ var React = require('react');
 var ReactART = require('react-art');
 var Group = ReactART.Group;
 
-var constructSearch = function() {
+var constructSearch = function(obj) {
 	return {
 		tag: "SearchType",
-		contents:
+		contents: obj.toJSON()
 	};
 };
 
