@@ -1,5 +1,5 @@
 {
-    "name": "hairy-octo-archer",
+    "name": "daenerys",
     "version": "0.0.1",
     "description": "programming experiment",
     "contributors": [{
@@ -7,11 +7,14 @@
         "email": "joelburget@gmail.com"
     }],
     "devDependencies": {
-        "reactify": "~0.11.0"
+        "watchify": "~0.10.2"
     },
     "dependencies": {
         "browserify": "~3.43.0",
+        "jquery": "~2.1.1",
+        "mori": "~0.2.6",
         "react": "~0.10.0",
+        "reactify": "~0.13.1",
         "react-art": "~0.10.0",
         "react-raf-batching": "~0.9"
     }

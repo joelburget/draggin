@@ -3,55 +3,36 @@
  */
 
 var React = require('react');
-// var RCSS = require('RCSS');
+var mori = require('mori');
+var $ = require('jquery');
 
-var surfaces = require('./surfaces.jsx');
-var Group = surfaces.Group;
-var Shape = surfaces.Shape;
-var Surface = surfaces.Surface;
-var Transform = surfaces.Transform;
+var ReactART = require('react-art');
+var Group = ReactART.Group;
+var Shape = ReactART.Shape;
+var Surface = ReactART.Surface;
+var Text = ReactART.Text;
+var Transform = ReactART.Transform;
 
-/*
-var style = RCSS.createClass({
-    border: '1px solid #ddd'
-});
-*/
-var style = "foo";
+var Prims = require('./prims.jsx');
+var RightArr = Prims.RightArr;
+var Rect = Prims.Rect;
+var Write = Prims.Write;
+
+var Search = require('./search.jsx');
+
+var MyMixin = {
+    shouldComponentUpdate: function(nextProps) {
+        return _(nextProps.appState).get(nextProps.cursor)
+            === _(this.props.appState).get(this.props.cursor);
+    }
+};
 
 var Name = React.createClass({
     propTypes: {
         name: React.PropTypes.string
     },
     render: function() {
-        return <span className={style}>{this.props.name}</span>;
-    }
-});
-
-var NameDefn = React.createClass({
-    propTypes: {
-        name: React.PropTypes.string
-    },
-    render: function() {
-        return <span className={style}>{this.props.name}</span>;
-    }
-});
-
-var RightArr = React.createClass({
-    render: function() {
-        return this.transferPropsTo(
-            <Shape d={RIGHT_ARR_PATH} stroke="#000" strokeWidth={5} />
-        );
-    }
-});
-
-var Arrows = React.createClass({
-    render: function() {
-        return this.transferPropsTo(
-            <Group>
-                <Shape d={LEFT_ARR_PATH} stroke="#000" strokeWidth={5} />
-                <Shape d={RIGHT_ARR_PATH} stroke="#000" strokeWidth={5} />
-            </Group>
-        );
+        return <Write>{this.props.name}</Write>;
     }
 });
 
@@ -59,12 +40,12 @@ var Func = React.createClass({
     render: function() {
         var scale = 0.2;
         var inputs = this.props.inputs.map((input, index) => {
-            var trans = new Transform()
-                .scale(scale, scale, 0, 0)
-                .move(0, index*50);
-            return <Group>
-                {input}
-                <RightArr transform={trans} />
+            var move = new Transform().move(0, index*50);
+            var resize = new Transform().scale(scale, scale, 0, 0)
+
+            return <Group transform={move}>
+                <Write alignment="right">{input}</Write>
+                <RightArr transform={resize} />
             </Group>;
         });
 
@@ -73,33 +54,139 @@ var Func = React.createClass({
             .move(100, 25);
         var output = <RightArr transform={outTrans} />;
 
-        return <div>
+        return <Group trans={this.props.trans}
+                      width={100}
+                      height={50}
+                      onMouseDown={this.props.onMouseDown}
+                      onMouseUp={this.props.onMouseUp}
+                      onMouseMove={this.props.onMouseMove}>
+            <Rect w={100} h={50} fill='green' opacity={0.2} />
             {inputs}
             <Name name={this.props.name} />
             {output}
-        </div>;
+        </Group>;
     }
 });
 
-LEFT_ARR_PATH = "m56.77774,2.5l-54.27774,54.31506l54.27774,54.2749l19.73633,-19.73633l-34.53857,-34.53857l34.53857,-34.53857l-19.73633,-19.77649z";
-RIGHT_ARR_PATH = "m22.21916,62l-19.71916,19.73633l34.53857,34.53857l-34.53857,34.54431l19.71916,19.73633l54.29494,-54.28064l-54.29494,-54.2749z";
-
 var MySurface = React.createClass({
     render: function() {
-        return <div>
-            <Surface width={700}
-                     height={700}
-                     style={{cursor: 'pointer'}} />
-            <Func inputs={["foo", "bar"]} name="f" />
-        </div>;
+        return <Surface width={700}
+                        height={700}
+                        style={{cursor: 'pointer'}}>
+            {this.props.children}
+        </Surface>;
     },
+
+    getInitialState: function() {
+        return {
+            x: 100,
+            y: 100
+        };
+    },
+
+    handleMouseDown: function(event) {
+        update(mori.assoc(globalState,
+            "mouseDown", true
+        ));
+    },
+
+    handleMouseUp: function(event) {
+        update(mori.assoc(globalState,
+            "mouseDown", false
+        ));
+    },
+
+    handleMouseMove: function(event) {
+        update(mori.assoc(globalState,
+            "mouseX", event.x,
+            "mouseY", event.y
+        ));
+    },
+
+    handleResize: function(e) {
+        update(mori.assoc(globalState,
+            "windowWidth", window.innerWidth,
+            "windowHeight", window.innerHeight
+        ));
+    },
+
     componentDidMount: function() {
-        // TODO get rid of this hack - update when registered components update
-        setInterval(() => { this.forceUpdate(); }, 50);
+        window.addEventListener('resize',    this.handleResize);
+        window.addEventListener('mousedown', this.handleMouseDown);
+        window.addEventListener('mouseup',   this.handleMouseUp);
+        window.addEventListener('mousemove', this.handleMouseMove);
+    },
+
+    componentWillUnmount: function() {
+        window.removeEventListener('resize', this.handleResize);
+        window.removeEventListener('mousedown', this.handleMouseDown);
+        window.removeEventListener('mouseup',   this.handleMouseUp);
+        window.removeEventListener('mousemove', this.handleMouseMove);
     }
 });
 
 var Batching = require("react-raf-batching/ReactRAFBatching.js");
 Batching.inject();
 
-React.renderComponent(<MySurface />, document.getElementById("main"));
+// application state holds:
+// - functions and data structures in scope
+//   - shape
+//   - position
+// - current mode: freestyle | searching (is that all?)
+// - mouse state
+//   - position
+//   - dragging?
+var globalState = mori.hash_map(
+    "mouseX", 0,
+    "mouseY", 0,
+    "windowWidth", window.innerWidth,
+    "windowHeight", window.innerHeight
+);
+
+// is this necessary? won't it update anyway?
+var requireUpdate = false;
+
+// transact in om
+var update = function(newState) {
+    requireUpdate = true;
+    globalState = newState;
+
+    if (mori.has_key(globalState, "searchResults")) {
+        React.renderComponent(
+            <MySurface global={globalState}>
+                {Search(mori.get(globalState, "searchResults"), null)}
+            </MySurface>,
+            document.getElementById("main")
+        );
+    } else {
+        // var trans = new Transform().move(this.state.x, this.state.y);
+        var trans = new Transform().move(200, 200);
+        React.renderComponent(
+            <MySurface global={globalState}>
+                <Func inputs={["rafbatching", "g"]}
+                      name="f"
+                      trans={trans} />
+            </MySurface>,
+            document.getElementById("main")
+        );
+    }
+};
+
+update(globalState);
+
+
+$.ajax('http://localhost:4296', {
+    data: '{"tag":"SearchName","contents":"++"}',
+    type: 'POST'
+})
+.then(
+    resp => {
+        update(mori.assoc(globalState,
+            "searchResults", resp
+        ));
+    }
+);
+
+// enable react devtools :/
+// (it only loads if it can find react)
+window.React = React;
