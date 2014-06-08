@@ -255,11 +255,11 @@ var typeBanner = {
 
 var nodeColors = {
     "PCase": c.lightGreen,
-    "PPi": c.darkRed,
+    "PPi": c.purple, // TODO :(
     "PApp": c.aqua,
     "PConstant": c.turquoise,
-    "PRef": c.orangeRed,
-    "PAlternative": c.purple
+    "PRef": c.orangeRed, // TODO :(
+    "PAlternative": c.darkRed
 };
 
 var typeBannerStyles = {};
@@ -313,6 +313,8 @@ var ProgramNode = React.createClass({
         } else if (this.state.hovered) {
             className = programNodeStyleHover.className;
         }
+
+        var style = {}
 
         return this.transferPropsTo(
             <div className={className}
@@ -529,7 +531,7 @@ var ProgramPi = React.createClass({
         pi: React.PropTypes.instanceOf(PPi).isRequired
     },
 
-    mixins: [LayeredComponentMixin],
+    // mixins: [LayeredComponentMixin],
     render: function() {
         var pi = this.props.pi;
         var outerStyle = {display: 'table-cell'};
@@ -555,14 +557,14 @@ var ProgramPi = React.createClass({
                  onMouseLeave={() => this.handleLeave(0)}>
                 {name}
                 <div style={{float: 'left'}}>
-                    {pi.t1.component()}
+                    {pi.t1.component({workspace: this.props.workspace})}
                 </div>
             </div>
             <div className={style.className} ref="ty2"
                  onMouseEnter={() => this.handleEnter(1)}
                  onMouseLeave={() => this.handleLeave(1)}>
                 <div style={{float: 'left'}}>
-                    {pi.t2.component()}
+                    {pi.t2.component({workspace: this.props.workspace})}
                 </div>
             </div>
         </ProgramNode>;
