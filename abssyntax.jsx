@@ -5,6 +5,7 @@
 var React = require('react');
 var mergeInto = require('react/lib/mergeInto');
 var LayeredComponentMixin = require('react-components/layered-component-mixin');
+var TeX = require('react-components/tex');
 var _ = require('underscore');
 var RCSS = require('rcss');
 
@@ -545,7 +546,7 @@ var ProgramCase = React.createClass({
 
         var caseComponents = cases.map(tms => <div>
             {tms[0].component()}
-            =>
+            <TeX>\Rightarrow</TeX>
             {tms[1].component()}
         </div>);
 
