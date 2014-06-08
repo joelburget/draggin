@@ -31,6 +31,15 @@ var Workspace = React.createClass({
             case 'dragend':
                 this.setState({ draggingTerm: null });
                 break;
+            case 'dragOver':
+                // draggable moved over an elementt
+                break;
+            case 'dragenter':
+                // draggable is being hovered over
+                break;
+            case 'dragleave':
+                // draggable is no longer being hovered over
+                break;
         }
     },
 

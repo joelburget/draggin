@@ -165,6 +165,14 @@ class PCase extends PTermBase {
     }
 }
 
+/*
+data PTerm = PPi  Plicity Name PTerm PTerm -- ^ (n : t1) -> t2
+           | PConstant Const -- ^ Builtin types
+           | PRef FC Name
+           | PAlternative Bool [PTerm] -- True if only one may work
+           | PApp FC PTerm [PArg] -- ^ e.g. IO (), List Char, length x
+*/
+
 var termTypes = {
     PPi,
     PConstant,
@@ -198,14 +206,6 @@ var argTypes = {
 function PArg(json) {
     return new argTypes[json.tag](json);
 }
-
-/*
-data PTerm = PPi  Plicity Name PTerm PTerm -- ^ (n : t1) -> t2
-           | PConstant Const -- ^ Builtin types
-           | PRef FC Name
-           | PAlternative Bool [PTerm] -- True if only one may work
-           | PApp FC PTerm [PArg] -- ^ e.g. IO (), List Char, length x
-*/
 
 function FC(fc_obj) {
     return fc_obj;
@@ -305,14 +305,39 @@ var ProgramNode = React.createClass({
 
         return this.transferPropsTo(
             <div className={className}
-                    draggable={true}
-                    onDragStart={this.handleDragStart}
-                    onDragEnd={this.handleDragEnd}
-                    onMouseEnter={() => this.setState({hovered: true})}
-                    onMouseLeave={() => this.setState({hovered: false})}>
+                 draggable={true}
+                 onDragStart={this.handleDragStart}
+                 onDragEnd={this.handleDragEnd}
+                 onDragOver={this.handleDragOver}
+                 onDragEnter={this.handleDragEnter}
+                 onDragLeave={this.handleDragLeave}
+                 onMouseEnter={() => this.setState({hovered: true})}
+                 onMouseLeave={() => this.setState({hovered: false})}>
+
                 {this.props.children}
                 <div className={typeBannerClassName} />
+
             </div>);
+    },
+
+    handleDragStart: function(event) {
+        this.props.workspace.tell('dragstart', this.props.draggable);
+    },
+
+    handleDragEnd: function(event) {
+        this.props.workspace.tell('dragend', this.props.draggable);
+    },
+
+    handleDragOver: function(event) {
+        this.props.workspace.tell('dragover', this.props.draggable);
+    },
+
+    handleDragEnter: function(event) {
+        this.props.workspace.tell('dragenter', this.props.draggable);
+    },
+
+    handleDragLeave: function(event) {
+        this.props.workspace.tell('dragleave', this.props.draggable);
     }
 });
 
@@ -424,8 +449,12 @@ var ProgramApplicationBrackets = React.createClass({
             workspace: this.props.workspace
         }));
 
+        var bracketStyle = { fontSize: '150%' };
+
         return <ProgramNode draggable={app} workspace={this.props.workspace}>
-            <TeX>[</TeX> {components} <TeX>]</TeX>
+            <TeX style={bracketStyle}>[</TeX>
+            {components}
+            <TeX style={bracketStyle}>]</TeX>
         </ProgramNode>;
     },
 

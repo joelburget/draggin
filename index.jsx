@@ -67,17 +67,21 @@ React.renderComponent(<Search />, document.getElementById("search"));
 
 var testobj = require("./testjson.js");
 var myTerm = PTerm(testobj);
+var terms = [myTerm];
 
-React.renderComponent(
-    <Workspace terms={[myTerm]} />,
-    document.getElementById("main")
-);
+var update = function() {
+    React.renderComponent(
+        <Workspace terms={terms} />,
+        document.getElementById("main")
+    );
+};
+update();
 
 window.parseAndShow = function(json) {
     var parsed = JSON.parse(json);
-    React.renderComponent(PTerm(parsed).component(),
-                          document.getElementById("main"));
-}
+    terms.push(PTerm(parsed));
+    update();
+};
 
 // enable react devtools :/
 // (it only loads if it can find react)
