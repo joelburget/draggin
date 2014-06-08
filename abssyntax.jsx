@@ -71,7 +71,8 @@ class PConstant extends PTermBase {
     }
 
     prettyRepr() {
-        if (this.name === "AType") {
+        var name = this.name;
+        if (name === "AType") {
             // complex value
             if (this.value.name === "ATFloat") {
                 return "Float : AType";
@@ -87,8 +88,10 @@ class PConstant extends PTermBase {
                     return "Some other fucking int type : AType";
                 }
             }
+        } else if (name === "I") {
+            name = "Int";
         }
-        return `${this.value} : ${this.name}`;
+        return `${this.value} : ${name}`;
     }
 
     flat() {
