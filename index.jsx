@@ -20,6 +20,7 @@ var Write = Prims.Write;
 var PTerm = require('./abssyntax.jsx').PTerm;
 
 var Search = require('./search.jsx');
+var Workspace = require('./workspace.jsx');
 
 var Name = React.createClass({
     propTypes: {
@@ -66,9 +67,11 @@ React.renderComponent(<Search />, document.getElementById("search"));
 
 var testobj = require("./testjson.js");
 var myTerm = PTerm(testobj);
-console.log(myTerm.flat())
 
-React.renderComponent(myTerm.component(), document.getElementById("main"));
+React.renderComponent(
+    <Workspace terms={[myTerm]} />,
+    document.getElementById("main")
+);
 
 window.parseAndShow = function(json) {
     var parsed = JSON.parse(json);

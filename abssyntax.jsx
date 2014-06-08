@@ -3,6 +3,7 @@
  */
 
 var React = require('react');
+var cx = require('react/addons').classSet;
 var mergeInto = require('react/lib/mergeInto');
 var LayeredComponentMixin = require('react-components/layered-component-mixin');
 var TeX = require('react-components/tex');
@@ -224,8 +225,12 @@ var programNodeStyleHover = RCSS.merge(programNodeStyle, RCSS.createClass({
     borderColor: colors.borderColor
 }));
 
+var programNodeStyleDrag = RCSS.merge(programNodeStyle, RCSS.createClass({
+    borderColor: colors.borderColor,
+    backgroundColor: colors.darker
+}));
+
 programNodeStyle = RCSS.createClass(programNodeStyle);
-programNodeStyleHover = RCSS.createClass(programNodeStyleHover);
 
 var ProgramNode = React.createClass({
     getInitialState: function() {
@@ -235,14 +240,29 @@ var ProgramNode = React.createClass({
     },
 
     render: function() {
-        var className = this.state.hovered ?
-            programNodeStyleHover.className :
-            programNodeStyle.className;
+        var className = programNodeStyle.className;
+
+        // TODO why doesn't this work
+        var beingDragged =
+            this.props.workspace.state.draggingTerm === this.props.draggable;
+
+        if (beingDragged) {
+            className = programNodeStyleDrag.className;
+        } else if (this.state.hovered) {
+            className = programNodeStyleHover.className;
+        }
+
         return this.transferPropsTo(
-            <div className={className}
+            <div className={programNodeStyle.className}
+                 draggable={true}
+                 onDragStart={this.handleDragStart}
                  onMouseEnter={() => this.setState({hovered: true})}
                  onMouseLeave={() => this.setState({hovered: false})}>
             {this.props.children}</div>);
+    },
+
+    handleDragStart: function(event) {
+        this.props.workspace.tell('dragstart', this.props.draggable);
     }
 });
 
@@ -286,9 +306,10 @@ var ProgramApplication = React.createClass({
             return this.transferPropsTo(ProgramApplicationBrackets());
         }
 
-        var termComponent = this.props.app.term.component();
-        var argComponents = this.props.app.args.map(
-            arg => arg.term.component()
+        var app = this.props.app;
+        var termComponent = app.term.component({workspace: this.props.workspace});
+        var argComponents = app.args.map(
+            arg => arg.term.component({workspace: this.props.workspace})
         );
 
         var inner;
@@ -297,7 +318,7 @@ var ProgramApplication = React.createClass({
         } else { // prefix
             inner = [termComponent, argComponents];
         }
-        return <ProgramNode>
+        return <ProgramNode draggable={app} workspace={this.props.workspace}>
             {inner}
         </ProgramNode>;
     },
@@ -349,11 +370,12 @@ var ProgramApplicationBrackets = React.createClass({
         }
 
         var components = pieces.map(x => x.term.component({
-            style: { 'float': 'left' }
+            style: { 'float': 'left' },
+            workspace: this.props.workspace
         }));
 
-        return <ProgramNode>
-            [{components}]
+        return <ProgramNode draggable={app} workspace={this.props.workspace}>
+            <TeX>[</TeX> {components} <TeX>]</TeX>
         </ProgramNode>;
     },
 
@@ -393,17 +415,18 @@ var ProgramAlternative = React.createClass({
     },
 
     render: function() {
+        var alt = this.props.alt;
         if (this.seemsToBeInteger()) {
             return new PConstant({
                 tag: "I",
-                contents: this.props.alt.alternatives[0].args[0].term.value
+                contents: alt.alternatives[0].args[0].term.value
             }).component(this.props);
         }
 
-        var alternativeComponents = this.props.alt.alternatives.map(
-            a => a.component()
+        var alternativeComponents = alt.alternatives.map(
+            a => a.component({workspace: this.props.workspace})
         );
-        return <ProgramNode>
+        return <ProgramNode draggable={alt} workspace={this.props.workspace}>
             "Alternatives:"
             {alternativeComponents}
         </ProgramNode>;
@@ -435,7 +458,8 @@ var ProgramPi = React.createClass({
             </div>;
         }
 
-        return <div style={outerStyle}>
+        return <ProgramNode style={outerStyle}
+                            workspace={this.props.workspace}>
             <div className={style.className} ref="ty1"
                  onMouseEnter={() => this.handleEnter(0)}
                  onMouseLeave={() => this.handleLeave(0)}>
@@ -451,7 +475,7 @@ var ProgramPi = React.createClass({
                     {pi.t2.component()}
                 </div>
             </div>
-        </div>;
+        </ProgramNode>;
     },
 
     handleEnter: function(num) {
@@ -506,7 +530,10 @@ var ProgramConstant = React.createClass({
     },
 
     render: function() {
-        return <ProgramNode>{this.props.const.prettyRepr()}</ProgramNode>
+        return <ProgramNode draggable={this.props.const}
+                            workspace={this.props.workspace}>
+            {this.props.const.prettyRepr()}
+        </ProgramNode>
     }
 });
 
@@ -517,7 +544,8 @@ var ProgramReference = React.createClass({
     },
 
     render: function() {
-        return <ProgramNode>
+        return <ProgramNode draggable={this.props.ref}
+                            workspace={this.props.workspace}>
             {this.props.ref.name.name()}
         </ProgramNode>;
     }
@@ -532,12 +560,9 @@ var ProgramCase = React.createClass({
     render: function() {
         var cases = this.props.cases;
 
-        var arg = cases.arg;
-        var cases = cases.cases;
-
-        return <ProgramNode>
-            {arg.component()}
-            {this.getCaseComponents(cases)}
+        return <ProgramNode draggable={cases} workspace={this.props.workspace}>
+            {cases.arg.component({workspace: this.props.workspace})}
+            {this.getCaseComponents(cases.cases)}
         </ProgramNode>;
     },
 
@@ -545,9 +570,9 @@ var ProgramCase = React.createClass({
         // special case 1 case?
 
         var components = cases.map(tms => <div>
-            {tms[0].component()}
+            {tms[0].component({workspace: this.props.workspace})}
             <TeX>\Rightarrow</TeX>
-            {tms[1].component()}
+            {tms[1].component({workspace: this.props.workspace})}
         </div>);
 
         return <div className={casesStyles.className}>
