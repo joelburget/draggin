@@ -102,13 +102,106 @@ data PTerm = PQuote Raw
 // 	   (PRef ...)
 
 // PApp FC PTerm [PArg] -- ^ e.g. IO (), List Char, length x
+//
+// This is a really interesting class. It could look a few different ways
+// depending on the context.
+//
+// * infix operators (+, *, etc)
+// * prefix application (f g)
+// * special forms ([1,2])
 var PApp = React.createClass({
     render: function() {
+        var form = this.recognizeForm();
+        if (form === this.type.SPECIAL) {
+            return PAppBrackets(this.props);
+        }
+
         var args = this.props.contents[2].map(PArg);
+
+        if (form === this.type.INFIX) {
+            return <div>
+                {args[0]}
+                {PTerm(this.props.contents[1])}
+                {args[1]}
+            </div>;
+        } else { // prefix
+            return <div>
+                {PTerm(this.props.contents[1])}
+                {args}
+            </div>;
+        }
+    },
+    recognizeForm: function() {
+        var tm = this.props.contents[1];
+        var isRef = tm.tag === 'PRef';
+        if (!isRef) {
+            return this.type.PREFIX;
+        }
+
+        var fName = tm.contents[1].contents;
+
+        if (fName === '::') {
+            return this.type.SPECIAL;
+        }
+
+        var isInfix = this.type.infixOps.indexOf(fName) !== -1;
+
+        return isInfix ? this.type.INFIX : this.type.PREFIX;
+    },
+    statics: {
+        INFIX: 'INFIX',
+        PREFIX: 'PREFIX',
+        SPECIAL: 'SPECIAL',
+
+        infixOps: ['+', '-', '*', '/']
+    }
+});
+
+var PAppBrackets = React.createClass({
+    // show a list or vect in brackets
+    render: function() {
+        var head = this.props.contents[2][0];
+        var tail = this.props.contents[2][1];
+
+        var pieces = [head];
+
+        // invariants:
+        // * head and tail point to a PExp
+        // * head is not nil
+        while (this.isCons(tail) && !this.isNil(tail)) {
+            head = tail.getTm.contents[2][0];
+            tail = tail.getTm.contents[2][1];
+
+            pieces.push(head);
+        }
+
+        var components = pieces
+            .map(d => { d.style = { 'float': 'left' }; return d; })
+            .map(PExp);
+
         return <div>
-            {PTerm(this.props.contents[1])}
-            {args}
+            [{components}]
         </div>;
+    },
+
+    isNil: function(pexp) {
+        return pexp.getTm.contents[1].contents === 'Nil';
+    },
+
+    isCons: function(pexp) {
+        var pterm = pexp.getTm;
+        if (pterm.tag !== 'PApp') {
+            return false;
+        }
+
+        var appTm = pterm.contents[1];
+
+        if (appTm.tag !== 'PRef') {
+            return false;
+        }
+
+        // TODO use name class
+        return appTm.contents[1].contents === '::';
     }
 });
 
