@@ -20,13 +20,6 @@ var Write = Prims.Write;
 
 var Search = require('./search.jsx');
 
-var MyMixin = {
-    shouldComponentUpdate: function(nextProps) {
-        return _(nextProps.appState).get(nextProps.cursor)
-            === _(this.props.appState).get(this.props.cursor);
-    }
-};
-
 var Name = React.createClass({
     propTypes: {
         name: React.PropTypes.string
