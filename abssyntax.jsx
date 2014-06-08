@@ -33,6 +33,10 @@ class PTermBase {
     flat() {
         return "<unimplemented>";
     }
+
+    canAccept(term) {
+        return false;
+    }
 }
 
 class PPi extends PTermBase {
@@ -287,14 +291,6 @@ var ProgramNode = React.createClass({
         };
     },
 
-    handleDragStart: function(event) {
-        this.props.workspace.tell('dragstart', this.props.ast);
-    },
-
-    handleDragEnd: function(event) {
-        this.props.workspace.tell('dragend', this.props.ast);
-    },
-
     render: function() {
         var className = programNodeStyle.className;
         // var className = this.state.hovered ?
@@ -320,12 +316,13 @@ var ProgramNode = React.createClass({
 
         return this.transferPropsTo(
             <div className={className}
-                 draggable={true}
-                 onDragStart={this.handleDragStart}
-                 onDragEnd={this.handleDragEnd}
-                 onDragOver={this.handleDragOver}
-                 onDragEnter={this.handleDragEnter}
-                 onDragLeave={this.handleDragLeave}
+                 draggable={this.props.draggable}
+                 onDragStart={this.tell}
+                 onDragEnd={this.tell}
+                 onDragOver={this.tell}
+                 onDragEnter={this.tell}
+                 onDragLeave={this.tell}
+                 onDrop={this.tell}
                  onMouseEnter={() => this.setState({hovered: true})}
                  onMouseLeave={() => this.setState({hovered: false})}>
 
@@ -335,24 +332,14 @@ var ProgramNode = React.createClass({
             </div>);
     },
 
-    handleDragStart: function(event) {
-        this.props.workspace.tell('dragstart', this.props.ast);
+    getDefaultProps: function() {
+        return {
+            draggable: true
+        };
     },
 
-    handleDragEnd: function(event) {
-        this.props.workspace.tell('dragend', this.props.ast);
-    },
-
-    handleDragOver: function(event) {
-        this.props.workspace.tell('dragover', this.props.ast);
-    },
-
-    handleDragEnter: function(event) {
-        this.props.workspace.tell('dragenter', this.props.ast);
-    },
-
-    handleDragLeave: function(event) {
-        this.props.workspace.tell('dragleave', this.props.ast);
+    tell: function(event) {
+        return this.props.workspace.tell(event, this.props.ast);
     }
 });
 
@@ -511,10 +498,11 @@ var ProgramAlternative = React.createClass({
     render: function() {
         var alt = this.props.alt;
         if (this.seemsToBeInteger()) {
-            return new PConstant({
+            var ast = new PConstant({
                 tag: "I",
                 contents: alt.alternatives[0].args[0].term.value
-            }).component(this.props);
+            });
+            return ast.component(_({ast}).extend(this.props));
         }
 
         var alternativeComponents = alt.alternatives.map(
@@ -541,7 +529,7 @@ var ProgramPi = React.createClass({
         var arrStyle = {
             display: 'table-cell',
             verticalAlign: 'top',
-            paddingTop: '20px',
+            paddingTop: '10px',
             fontSize: '120%',
             float: 'left'
         };
@@ -562,7 +550,10 @@ var ProgramPi = React.createClass({
         }
 
         return <ProgramNode style={outerStyle}
+                            draggable={false}
+                            ast={pi}
                             workspace={this.props.workspace}>
+                            {/*
             <div className={style.className} ref="ty1"
                  onMouseEnter={() => this.handleEnter(0)}
                  onMouseLeave={() => this.handleLeave(0)}>
@@ -578,6 +569,14 @@ var ProgramPi = React.createClass({
                 <div style={{float: 'left'}}>
                     {pi.t2.component({workspace: this.props.workspace})}
                 </div>
+            </div>
+            */}
+            <div style={{float: 'left'}}>
+                {pi.t1.component({workspace: this.props.workspace})}
+            </div>
+            <TeX style={arrStyle}>\rightarrow</TeX>
+            <div style={{float: 'left'}}>
+                {pi.t2.component({workspace: this.props.workspace})}
             </div>
         </ProgramNode>;
     },

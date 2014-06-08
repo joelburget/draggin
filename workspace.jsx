@@ -21,25 +21,41 @@ var Workspace = React.createClass({
         </section>;
     },
 
-    tell: function(eventName, ast) {
-        console.log(eventName, ast);
-
-        switch (eventName) {
+    tell: function(event, ast) {
+        var duplicate = event.shiftKey;
+        console.log(event.type, ast, event.target);
+        switch (event.type) {
             case 'dragstart':
                 this.setState({ draggingTerm: ast });
+                event.stopPropagation();
                 break;
+
             case 'dragend':
+                // ast is the dragged node
                 this.setState({ draggingTerm: null });
+                return false;
                 break;
+
             case 'dragOver':
-                // draggable moved over an elementt
+                // ast moved over an elementt
+
+                // allow a drop. TODO - only allow in certain cases
+                event.preventDefault();
                 break;
+
             case 'dragenter':
-                // draggable is being hovered over
+                if (ast.canAccept(this.state.draggingTerm)) {
+                    // super highlight ast
+                }
+                // ast is being hovered over
                 break;
+
             case 'dragleave':
-                // draggable is no longer being hovered over
+                // ast is no longer being hovered over
                 break;
+
+            case 'drop':
+                // ast is the target of the drop
         }
     },
 
