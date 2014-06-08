@@ -19,6 +19,18 @@ var colors = {
     hover: 'rgb(255, 171, 160)'
 };
 
+var clearfix = {
+    ':before': {
+        content: '""',
+        display: 'table'
+    },
+    ':after': {
+        content: '""',
+        display: 'table',
+        clear: 'both'
+    }
+};
+
 var DataTypeMixin = {
     renderAlt: function() {
         var cls = this.type.constrs[this.props.tag];
@@ -95,4 +107,4 @@ RECT_PATH = "m0,0h1v1h-1z"; // hand-crafted svg :D
 LEFT_ARR_PATH = "m56.77774,2.5l-54.27774,54.31506l54.27774,54.2749l19.73633,-19.73633l-34.53857,-34.53857l34.53857,-34.53857l-19.73633,-19.77649z";
 RIGHT_ARR_PATH = "m22.21916,62l-19.71916,19.73633l34.53857,34.53857l-34.53857,34.54431l19.71916,19.73633l54.29494,-54.28064l-54.29494,-54.2749z";
 
-module.exports = {Renderable, RightArr, Rect, Write, DataTypeMixin, colors};
+module.exports = {Renderable, RightArr, Rect, Write, DataTypeMixin, colors, clearfix};

@@ -18,21 +18,10 @@ var Renderable = Prims.Renderable;
 var Write = Prims.Write;
 var DataTypeMixin = Prims.DataTypeMixin;
 var colors = Prims.colors;
+var clearfix = Prims.clearfix;
 
 var Name = require('./tt.jsx').Name;
 var AsType = require('./astype.jsx');
-
-var clearfix = {
-    ':before': {
-        content: '""',
-        display: 'table'
-    },
-    ':after': {
-        content: '""',
-        display: 'table',
-        clear: 'both'
-    }
-};
 
 
 class PTermBase {

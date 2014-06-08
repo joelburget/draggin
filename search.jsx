@@ -16,6 +16,7 @@ var Prims = require('./prims.jsx');
 var Renderable = Prims.Renderable;
 var Write = Prims.Write;
 var Rect = Prims.Rect;
+var colors = Prims.colors;
 
 var TT = require('./tt.jsx');
 
@@ -36,12 +37,15 @@ var searchContainerStyle = RCSS.createClass({
     top: 0,
     width: "300px",
     height: "100%",
-    background: "lightgray"
+    borderBottom: `1px solid ${colors.borderColor}`,
+    borderLeft: `1px solid ${colors.borderColor}`,
+    borderRight: `1px solid ${colors.borderColor}`,
+    background: "white"
 });
 
 var searchResultStyle = RCSS.createClass({
     background: "white",
-    border: "1px solid black",
+    borderBottom: `1px solid ${colors.borderColor}`,
     padding: "20px",
     overflowX: "scroll"
 });
@@ -60,6 +64,20 @@ var searchResultContainerStyle = RCSS.createClass({
     height: "89%"
 });
 
+var headerStyle = RCSS.createClass({
+    fontWeight: '300',
+    margin: '20px'
+});
+
+var headerBoxStyle = RCSS.createClass({
+    borderBottom: `2px solid ${colors.borderColor}`
+});
+
+var searchBoxStyle = RCSS.createClass({
+    margin: '0 20px 20px',
+    height: '20px',
+    width: '252px'
+});
 
 var ResultTitle = React.createClass({
     propTypes: {
@@ -142,10 +160,11 @@ var Search = React.createClass({
         );
 
         return <div className={searchContainerStyle.className}>
-            <div>
-                <h1>Name search</h1>
+            <div className={headerBoxStyle.className}>
+                <h1 className={headerStyle.className}>Name search</h1>
                 <input type="text"
                        ref="searchText"
+                       className={searchBoxStyle.className}
                        onChange={_.throttle(this.onSearchChange, 50)} />
             </div>
             <div className={searchResultContainerStyle.className}>
