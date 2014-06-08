@@ -70,6 +70,12 @@ console.log(myTerm.flat())
 
 React.renderComponent(myTerm.component(), document.getElementById("main"));
 
+window.parseAndShow = function(json) {
+    var parsed = JSON.parse(json);
+    React.renderComponent(PTerm(parsed).component(),
+                          document.getElementById("main"));
+}
+
 // enable react devtools :/
 // (it only loads if it can find react)
 window.React = React;
