@@ -63,11 +63,37 @@ class PPi extends PTermBase {
 class PConstant extends PTermBase {
     constructor(args) {
         this.name = args.tag;
-        this.value = args.contents;
+        if(_.isObject(args.contents) && args.contents.tag) {
+            this.value = new PConstant(args.contents);
+        } else {
+            this.value = args.contents;
+        }
+    }
+
+    prettyRepr() {
+        if (this.name === "AType") {
+            // complex value
+            if (this.value.name === "ATFloat") {
+                return "Float : AType";
+            } else if (this.value.name === "ATInt") {
+                // int, even more complex value
+                if (this.value.value.name === "ITNative") {
+                    return "Int : AType";
+                } else if (this.value.value.name === "ITBig") {
+                    return "Integer : AType";
+                } else {
+                    console.log("Add more special cases for:",
+                                this.value.value);
+                    return "Some other fucking int type : AType";
+                }
+            }
+        }
+        return `${this.value} : ${this.name}`;
     }
 
     flat() {
-        return `${this.value}:${this.name}`;
+        var val = this.value.flat ? this.value.flat() : this.value
+        return `${val}:${this.name}`;
     }
 
     component(props) {
@@ -196,7 +222,8 @@ var programNodeStyle = {
     margin: "5px",
     borderColor: "transparent",
     borderWidth: "1px",
-    borderStyle: "solid"
+    borderStyle: "solid",
+    padding: "5px"
 };
 
 var programNodeStyleHover = RCSS.merge(programNodeStyle, RCSS.createClass({
@@ -486,7 +513,7 @@ var ProgramConstant = React.createClass({
     },
 
     render: function() {
-        return <ProgramNode>{this.props.const.value}</ProgramNode>
+        return <ProgramNode>{this.props.const.prettyRepr()}</ProgramNode>
     }
 });
 
