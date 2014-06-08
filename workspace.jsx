@@ -21,12 +21,12 @@ var Workspace = React.createClass({
         </section>;
     },
 
-    tell: function(eventName, draggable) {
-        console.log(eventName, draggable);
+    tell: function(eventName, ast) {
+        console.log(eventName, ast);
 
         switch (eventName) {
             case 'dragstart':
-                this.setState({ draggingTerm: draggable });
+                this.setState({ draggingTerm: ast });
                 break;
             case 'dragend':
                 this.setState({ draggingTerm: null });

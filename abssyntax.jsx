@@ -288,11 +288,11 @@ var ProgramNode = React.createClass({
     },
 
     handleDragStart: function(event) {
-        this.props.workspace.tell('dragstart', this.props.draggable);
+        this.props.workspace.tell('dragstart', this.props.ast);
     },
 
     handleDragEnd: function(event) {
-        this.props.workspace.tell('dragend', this.props.draggable);
+        this.props.workspace.tell('dragend', this.props.ast);
     },
 
     render: function() {
@@ -308,7 +308,7 @@ var ProgramNode = React.createClass({
 
         // TODO why doesn't this work
         var beingDragged =
-            this.props.workspace.state.draggingTerm === this.props.draggable;
+            this.props.workspace.state.draggingTerm === this.props.ast;
 
         if (beingDragged) {
             className = programNodeStyleDrag.className;
@@ -336,23 +336,23 @@ var ProgramNode = React.createClass({
     },
 
     handleDragStart: function(event) {
-        this.props.workspace.tell('dragstart', this.props.draggable);
+        this.props.workspace.tell('dragstart', this.props.ast);
     },
 
     handleDragEnd: function(event) {
-        this.props.workspace.tell('dragend', this.props.draggable);
+        this.props.workspace.tell('dragend', this.props.ast);
     },
 
     handleDragOver: function(event) {
-        this.props.workspace.tell('dragover', this.props.draggable);
+        this.props.workspace.tell('dragover', this.props.ast);
     },
 
     handleDragEnter: function(event) {
-        this.props.workspace.tell('dragenter', this.props.draggable);
+        this.props.workspace.tell('dragenter', this.props.ast);
     },
 
     handleDragLeave: function(event) {
-        this.props.workspace.tell('dragleave', this.props.draggable);
+        this.props.workspace.tell('dragleave', this.props.ast);
     }
 });
 
@@ -408,7 +408,7 @@ var ProgramApplication = React.createClass({
         } else { // prefix
             inner = [termComponent, argComponents];
         }
-        return <ProgramNode ast={app} draggable={app} workspace={this.props.workspace}>
+        return <ProgramNode ast={app} workspace={this.props.workspace}>
             {inner}
         </ProgramNode>;
     },
@@ -466,7 +466,7 @@ var ProgramApplicationBrackets = React.createClass({
 
         var bracketStyle = { fontSize: '150%' };
 
-        return <ProgramNode ast={app} draggable={app} workspace={this.props.workspace}>
+        return <ProgramNode ast={app} workspace={this.props.workspace}>
             <TeX style={bracketStyle}>[</TeX>
             {components}
             <TeX style={bracketStyle}>]</TeX>
@@ -520,7 +520,7 @@ var ProgramAlternative = React.createClass({
         var alternativeComponents = alt.alternatives.map(
             a => a.component({workspace: this.props.workspace})
         );
-        return <ProgramNode draggable={alt} workspace={this.props.workspace}>
+        return <ProgramNode ast={alt} workspace={this.props.workspace}>
             "Alternatives:"
             {alternativeComponents}
         </ProgramNode>;
@@ -635,7 +635,6 @@ var ProgramConstant = React.createClass({
 
     render: function() {
         return <ProgramNode ast={this.props.cnst}
-                            draggable={this.props.cnst}
                             workspace={this.props.workspace}>
             {this.props.cnst.prettyRepr()}
         </ProgramNode>;
@@ -649,7 +648,7 @@ var ProgramReference = React.createClass({
     },
 
     render: function() {
-        return <ProgramNode draggable={this.props.ref}
+        return <ProgramNode ast={this.props.ref}
                             workspace={this.props.workspace}>
             {this.props.ref.name.name()}
         </ProgramNode>;
@@ -665,8 +664,7 @@ var ProgramCase = React.createClass({
     render: function() {
         var cases = this.props.cases;
 
-        return <ProgramNode draggable={cases}
-                            workspace={this.props.workspace}
+        return <ProgramNode workspace={this.props.workspace}
                             ast={cases}>
             {cases.arg.component({workspace: this.props.workspace})}
             {this.getCaseComponents(cases.cases)}
