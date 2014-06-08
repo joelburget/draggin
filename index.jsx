@@ -69,15 +69,91 @@ React.renderComponent(
     document.getElementById("main")
 );
 
-$.ajax('http://localhost:4296', {
-    data: '{"tag":"SearchType","contents":"++"}',
-    type: 'POST'
-})
-.then(
-    resp => {
-        console.log("search came back: ", resp);
-    }
-);
+// is this necessary? won't it update anyway?
+var requireUpdate = false;
+
+var intIntObj = {
+    tag: "PPi",
+    contents: [
+        {
+            tag: "Exp",
+            pstatic: "Dynamic",
+            pargopts: [],
+            pparam: false
+        },
+        {
+            tag: "UN",
+            contents: "__pi_arg"
+        },
+        {
+            tag: "PRef",
+            contents: [
+                {
+                    fc_fname: "(input)",
+                    fc_start: [ 1, 4 ],
+                    fc_end: [ 1, 4 ]
+                },
+                {
+                    tag: "UN",
+                    contents: "a"
+                }
+            ]
+        },
+        {
+            tag: "PRef",
+            contents: [
+                {
+                    fc_fname: "(input)",
+                    fc_start: [ 1, 4 ],
+                    fc_end: [ 1, 4 ]
+                },
+                {
+                    tag: "UN",
+                    contents: "a"
+                }
+            ]
+        }
+    ]
+};
+
+// transact in om
+var update = function(newState) {
+    requireUpdate = true;
+    globalState = newState;
+
+    React.renderComponent(<Search />, document.getElementById("search"));
+
+    var tm = PTerm(intIntObj, null);
+    React.renderComponent(
+        tm,
+        document.getElementById("main")
+    );
+    // // var trans = new Transform().move(this.state.x, this.state.y);
+    // var trans = new Transform().move(200, 200);
+    // React.renderComponent(
+    //     <MySurface global={globalState}>
+    //         <Func inputs={["rafbatching", "g"]}
+    //               name="f"
+    //               trans={trans} />
+    //     </MySurface>,
+    //     document.getElementById("main")
+    // );
+};
+
+update(globalState);
+
+// $.ajax('http://localhost:4296', {
+//     data: '{"tag":"SearchType","contents":"++"}',
+//     type: 'POST'
+// })
+// .then(
+//     resp => {
+//         console.log("search came back: ", resp);
+//         update(mori.assoc(globalState,
+//             "searchResults", resp
+//         ));
+//     }
+// );
 
 // enable react devtools :/
 // (it only loads if it can find react)
