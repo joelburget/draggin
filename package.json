@@ -17,6 +17,6 @@
         "react-art": "~0.10.0",
         "rcss": "chenglou/RCSS",
         "underscore": "~1.6.0",
-        "react-components": "~0.0.5"
+        "react-components": "~0.0.6"
     }
 }

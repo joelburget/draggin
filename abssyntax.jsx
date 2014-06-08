@@ -92,7 +92,7 @@ class PConstant extends PTermBase {
     }
 
     component(props) {
-        var propsObj = _.extend({const: this}, props);
+        var propsObj = _.extend({cnst: this}, props);
         return ProgramConstant(propsObj);
     }
 }
@@ -218,7 +218,8 @@ var programNodeStyle = {
     borderColor: "transparent",
     borderWidth: "1px",
     borderStyle: "solid",
-    padding: "5px"
+    padding: "5px",
+    position: "relative"
 };
 
 var programNodeStyleHover = RCSS.merge(programNodeStyle, {
@@ -234,15 +235,63 @@ RCSS.createClass(programNodeStyle);
 RCSS.createClass(programNodeStyleHover);
 RCSS.createClass(programNodeStyleDrag);
 
+var typeBanner = {
+    position: "absolute",
+    width: "100%",
+    height: "3px",
+    backgroundColor: "gray",
+    left: 0,
+    bottom: 0
+};
+
+var nodeColors = {
+    "PCase": "red",
+    "PApp": "blue",
+    "PPi": "purple",
+    "PConstant": "black"
+};
+
+var typeBannerStyles = {};
+_.each(nodeColors, (v, k) => {
+    typeBannerStyles[k] = RCSS.merge(typeBanner, {
+        backgroundColor: v
+    });
+    typeBannerStyles[k] = RCSS.createClass(typeBannerStyles[k]);
+});
+
+typeBanner = RCSS.createClass(typeBanner);
+programNodeStyle = RCSS.createClass(programNodeStyle);
+programNodeStyleHover = RCSS.createClass(programNodeStyleHover);
+
 var ProgramNode = React.createClass({
+    propTypes: {
+        ast: React.PropTypes.instanceOf(PTermBase)
+    },
+
     getInitialState: function() {
         return {
             hovered: false
         };
     },
 
+    handleDragStart: function(event) {
+        this.props.workspace.tell('dragstart', this.props.draggable);
+    },
+
+    handleDragEnd: function(event) {
+        this.props.workspace.tell('dragend', this.props.draggable);
+    },
+
     render: function() {
         var className = programNodeStyle.className;
+        // var className = this.state.hovered ?
+        //     programNodeStyleHover.className :
+        //     programNodeStyle.className;
+
+        var ast = this.props.ast;
+        var typeBannerClassName = ast ?
+            typeBannerStyles[ast.constructor.name].className :
+            typeBanner.className;
 
         // TODO why doesn't this work
         var beingDragged =
@@ -256,20 +305,14 @@ var ProgramNode = React.createClass({
 
         return this.transferPropsTo(
             <div className={className}
-                 draggable={true}
-                 onDragStart={this.handleDragStart}
-                 onDragEnd={this.handleDragEnd}
-                 onMouseEnter={() => this.setState({hovered: true})}
-                 onMouseLeave={() => this.setState({hovered: false})}>
-            {this.props.children}</div>);
-    },
-
-    handleDragStart: function(event) {
-        this.props.workspace.tell('dragstart', this.props.draggable);
-    },
-
-    handleDragEnd: function(event) {
-        this.props.workspace.tell('dragend', this.props.draggable);
+                    draggable={true}
+                    onDragStart={this.handleDragStart}
+                    onDragEnd={this.handleDragEnd}
+                    onMouseEnter={() => this.setState({hovered: true})}
+                    onMouseLeave={() => this.setState({hovered: false})}>
+                {this.props.children}
+                <div className={typeBannerClassName} />
+            </div>);
     }
 });
 
@@ -325,7 +368,7 @@ var ProgramApplication = React.createClass({
         } else { // prefix
             inner = [termComponent, argComponents];
         }
-        return <ProgramNode draggable={app} workspace={this.props.workspace}>
+        return <ProgramNode ast={app} draggable={app} workspace={this.props.workspace}>
             {inner}
         </ProgramNode>;
     },
@@ -533,14 +576,15 @@ var ProgramPi = React.createClass({
 // PConstant Const
 var ProgramConstant = React.createClass({
     propTypes: {
-        const: React.PropTypes.instanceOf(PConstant).isRequired
+        cnst: React.PropTypes.instanceOf(PConstant).isRequired
     },
 
     render: function() {
-        return <ProgramNode draggable={this.props.const}
+        return <ProgramNode ast={this.props.cnst}
+                            draggable={this.props.cnst}
                             workspace={this.props.workspace}>
-            {this.props.const.prettyRepr()}
-        </ProgramNode>
+            {this.props.cnst.prettyRepr()}
+        </ProgramNode>;
     }
 });
 
@@ -567,7 +611,9 @@ var ProgramCase = React.createClass({
     render: function() {
         var cases = this.props.cases;
 
-        return <ProgramNode draggable={cases} workspace={this.props.workspace}>
+        return <ProgramNode draggable={cases}
+                            workspace={this.props.workspace}
+                            ast={cases}>
             {cases.arg.component({workspace: this.props.workspace})}
             {this.getCaseComponents(cases.cases)}
         </ProgramNode>;
