@@ -69,10 +69,8 @@ React.renderComponent(
     document.getElementById("main")
 );
 
-// $.ajax('http://localhost:4296', {
-//     data: '{"tag":"SearchType","contents":"++"}',
-$.ajax('http://192.168.8.114:4296', {
-    data: '{"tag":"SearchName","contents":"++"}',
+$.ajax('http://localhost:4296', {
+    data: '{"tag":"SearchType","contents":"++"}',
     type: 'POST'
 })
 .then(
