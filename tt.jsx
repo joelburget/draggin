@@ -262,7 +262,7 @@ class NameSpace {
     }
 
     get namespace() {
-        return this.parts.join("::");
+        return this.parts.slice().reverse().join("::");
     }
 
     get baseName() {
