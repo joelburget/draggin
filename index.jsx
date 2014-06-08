@@ -18,6 +18,8 @@ var RightArr = Prims.RightArr;
 var Rect = Prims.Rect;
 var Write = Prims.Write;
 
+var PTerm = require('./abssyntax.jsx');
+
 var Search = require('./search.jsx');
 
 var Name = React.createClass({
@@ -139,37 +141,64 @@ var globalState = mori.hash_map(
 // is this necessary? won't it update anyway?
 var requireUpdate = false;
 
+var intIntObj = {
+    tag: "PPi",
+    contents: [
+        {
+            tag: "Exp",
+            pstatic: "Dynamic",
+            pargopts: [],
+            pparam: false
+        },
+        {
+            tag: "UN",
+            contents: "__pi_arg"
+        },
+        {
+            tag: "PConstant",
+            contents: {
+                tag: "AType",
+                contents: {
+                    tag: "ATInt",
+                    contents: {
+                        tag: "ITNative",
+                        contents:[]
+                    }
+                }
+            }
+        },
+        {
+            tag: "PConstant",
+            contents: {
+                tag: "AType" ,
+                contents: {
+                    tag: "ATInt",
+                    contents: {
+                        tag: "ITNative",
+                        contents: []
+                    }
+                }
+            }
+        }
+    ]
+};
+
 // transact in om
 var update = function(newState) {
     requireUpdate = true;
     globalState = newState;
 
-    if (mori.has_key(globalState, "searchResults")) {
-        React.renderComponent(
-            <MySurface global={globalState}>
-                {Search(mori.get(globalState, "searchResults"), null)}
-            </MySurface>,
-            document.getElementById("main")
-        );
-    } else {
-        // var trans = new Transform().move(this.state.x, this.state.y);
-        var trans = new Transform().move(200, 200);
-        React.renderComponent(
-            <MySurface global={globalState}>
-                <Func inputs={["rafbatching", "g"]}
-                      name="f"
-                      trans={trans} />
-            </MySurface>,
-            document.getElementById("main")
-        );
-    }
+    var tm = PTerm(intIntObj, null);
+    React.renderComponent(
+        tm,
+        document.getElementById("main")
+    );
 };
 
 update(globalState);
 
-
 $.ajax('http://localhost:4296', {
-    data: '{"tag":"SearchName","contents":"++"}',
+    data: '{"tag":"SearchType","contents":"++"}',
     type: 'POST'
 })
 .then(

@@ -11,6 +11,13 @@ var Prims = require('./prims.jsx');
 var Renderable = Prims.Renderable;
 var Write = Prims.Write;
 
+var DataTypeMixin = {
+    renderAlt: function() {
+        var cls = this.type.constrs[this.props.tag];
+        return cls(this.props);
+    }
+};
+
 /*
 -- | High level language terms
 data PTerm = PQuote Raw
@@ -51,13 +58,6 @@ data PTerm = PQuote Raw
            | PDisamb [[T.Text]] PTerm -- ^ Preferences for explicit namespaces
            | PUnifyLog PTerm -- ^ dump a trace of unifications when building term
            | PNoImplicits PTerm -- ^ never run implicit converions on the term
-
-data Const = I Int | BI Integer | Fl Double | Ch Char | Str String
-           | B8 Word8 | B16 Word16 | B32 Word32 | B64 Word64
-           | B8V (Vector Word8) | B16V (Vector Word16)
-           | B32V (Vector Word32) | B64V (Vector Word64)
-           | AType ArithTy | StrType
-           | PtrType | ManagedPtrType | BufferType | VoidType | Forgot
 */
 
 // let's do:
@@ -87,23 +87,94 @@ data Const = I Int | BI Integer | Fl Double | Ch Char | Str String
 // 	   (PRef (...) (UN "a"))
 // 	   (PRef ...)
 
-
-var PTerm = function(tag, component) {
-    this.tag = tag;
-    this.component = component;
-};
-
-PTerm.prototype = new Renderable();
-
 // PPi Plicity Name PTerm PTerm -- ^ (n : t1) -> t2
-
-var PPiC = React.createClass({
+var PPi = React.createClass({
+    mixins: [DataTypeMixin],
     render: function() {
-        return <Group>
-        </Group>;
+        var contents = this.props.contents;
+        return <div>
+            {PTerm(contents[2])}
+            ->
+            {PTerm(contents[3])}
+        </div>;
     }
 });
 
-var PPi = function(contents) {
-    this.contents = contents;
-};
+// PConstant Const
+var PConstant = React.createClass({
+    render: function() {
+        return Const(this.props.contents);
+    }
+});
+
+var ATFloat = React.createClass({
+    render: function() {
+        return <div>Float</div>;
+    }
+});
+
+var IntTy = React.createClass({
+    render: function() {
+        return <div>Int</div>;
+    }
+});
+
+var ATInt = React.createClass({
+    render: function() {
+        return IntTy(this.props.contents);
+    }
+});
+
+var ArithTy = React.createClass({
+    mixins: [DataTypeMixin],
+    render: function() {
+        return this.renderAlt();
+    },
+    statics: {
+        constrs: { ATInt, ATFloat }
+    }
+});
+
+var AType = React.createClass({
+    render: function() {
+        return ArithTy(this.props.contents);
+    },
+    statics: {
+        constrs: { ArithTy }
+    }
+});
+
+
+/*
+data Const = I Int | BI Integer | Fl Double | Ch Char | Str String
+           | B8 Word8 | B16 Word16 | B32 Word32 | B64 Word64
+           | B8V (Vector Word8) | B16V (Vector Word16)
+           | B32V (Vector Word32) | B64V (Vector Word64)
+           | AType ArithTy | StrType
+           | PtrType | ManagedPtrType | BufferType | VoidType | Forgot
+*/
+var Const = React.createClass({
+    mixins: [DataTypeMixin],
+    render: function() {
+        if (this.props.contents.length === 0) {
+            return <div>I don't understand this constant</div>;
+        }
+
+        return this.renderAlt();
+    },
+    statics: {
+        constrs: { AType }
+    }
+});
+
+var PTerm = React.createClass({
+    mixins: [DataTypeMixin],
+    render: function() {
+        return this.renderAlt();
+    },
+    statics: {
+        constrs: { PPi, PConstant }
+    }
+});
+
+module.exports = PTerm;
