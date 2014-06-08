@@ -8,6 +8,11 @@ var Text = ReactART.Text;
 var Transform = ReactART.Transform;
 
 var colors = {
+    // program nodes
+    nodeBg: "rgba(221, 221, 221, 0.4)",
+    borderColor: "#bbb",
+
+    // types
     fill: '#555',
     lighter: '#79D7FF',
     darker: '#00B3FF',

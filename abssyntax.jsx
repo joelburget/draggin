@@ -16,6 +16,7 @@ var Prims = require('./prims.jsx');
 var Renderable = Prims.Renderable;
 var Write = Prims.Write;
 var DataTypeMixin = Prims.DataTypeMixin;
+var colors = Prims.colors;
 
 var Name = require('./tt.jsx').Name;
 var AsType = require('./astype.jsx');
@@ -221,7 +222,7 @@ function FC(fc_obj) {
 
 var programNodeStyle = {
     display: "inline-block",
-    background: "rgba(221, 221, 221, 0.4)",
+    background: colors.nodeBg,
     margin: "5px",
     borderColor: "transparent",
     borderWidth: "1px",
@@ -230,8 +231,7 @@ var programNodeStyle = {
 };
 
 var programNodeStyleHover = RCSS.merge(programNodeStyle, RCSS.createClass({
-    background: "rgba(221, 221, 221, 1)",
-    borderColor: "black"
+    borderColor: colors.borderColor
 }));
 
 programNodeStyle = RCSS.createClass(programNodeStyle);
