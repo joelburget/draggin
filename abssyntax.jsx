@@ -235,20 +235,31 @@ RCSS.createClass(programNodeStyle);
 RCSS.createClass(programNodeStyleHover);
 RCSS.createClass(programNodeStyleDrag);
 
+var c = {
+    darkGreen: "#5b9032",
+    darkRed: "#793541",
+    aqua: "#1c758a",
+    turquoise: "#49a88f",
+    orangeRed: "#cf5044",
+    purple: "#8e4c9b"
+};
+
 var typeBanner = {
     position: "absolute",
     width: "100%",
     height: "3px",
-    backgroundColor: "gray",
+    backgroundColor: c.orangeRed,
     left: 0,
     bottom: 0
 };
 
 var nodeColors = {
-    "PCase": "red",
-    "PApp": "blue",
-    "PPi": "purple",
-    "PConstant": "black"
+    "PCase": c.lightGreen,
+    "PPi": c.darkRed,
+    "PApp": c.aqua,
+    "PConstant": c.turquoise,
+    "PRef": c.orangeRed,
+    "PAlternative": c.purple
 };
 
 var typeBannerStyles = {};
