@@ -64,8 +64,9 @@ var Func = React.createClass({
 
 React.renderComponent(<Search />, document.getElementById("search"));
 
-var myTerm = PTerm(require('./testjson.js'));
-console.log(myTerm.flat());
+var testobj = require("./testjson.js");
+var myTerm = PTerm(testobj);
+console.log(myTerm.flat())
 
 React.renderComponent(myTerm.component(), document.getElementById("main"));
 

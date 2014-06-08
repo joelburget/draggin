@@ -347,7 +347,20 @@ var ProgramAlternative = React.createClass({
         alt: React.PropTypes.instanceOf(PAlternative).isRequired
     },
 
+    seemsToBeInteger: function() {
+        var alt = this.props.alt;
+        return (alt.alternatives[0] instanceof PApp) &&
+            alt.alternatives[0].term.name.name() === "fromInteger";
+    },
+
     render: function() {
+        if (this.seemsToBeInteger()) {
+            return new PConstant({
+                tag: "I",
+                contents: this.props.alt.alternatives[0].args[0].term.value
+            }).component(this.props);
+        }
+
         var alternativeComponents = this.props.alt.alternatives.map(
             a => a.component()
         );
