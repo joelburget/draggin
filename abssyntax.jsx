@@ -107,7 +107,7 @@ class PConstant extends PTermBase {
 }
 class PRef extends PTermBase {
     constructor(args) {
-        this.fc = args[0];
+        // this.fc = args[0];
         this.name = Name(args[1]);
     }
 
@@ -139,7 +139,7 @@ class PAlternative extends PTermBase {
 }
 class PApp extends PTermBase {
     constructor(args) {
-        this.fc = args[0];
+        // this.fc = args[0];
         this.term = PTerm(args[1]);
         this.args = args[2].map(PArg);
     }
