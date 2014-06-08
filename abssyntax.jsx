@@ -256,7 +256,7 @@ var typeBanner = {
 };
 
 var nodeColors = {
-    "PCase": c.lightGreen,
+    "PCase": c.darkGreen,
     "PPi": c.purple, // TODO :(
     "PApp": c.aqua,
     "PConstant": c.turquoise,
@@ -466,7 +466,7 @@ var ProgramApplicationBrackets = React.createClass({
 
         var bracketStyle = { fontSize: '150%' };
 
-        return <ProgramNode draggable={app} workspace={this.props.workspace}>
+        return <ProgramNode ast={app} draggable={app} workspace={this.props.workspace}>
             <TeX style={bracketStyle}>[</TeX>
             {components}
             <TeX style={bracketStyle}>]</TeX>
