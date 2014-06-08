@@ -71,7 +71,8 @@ class PConstant extends PTermBase {
             } else if (this.value.name === "ATInt") {
                 // int, even more complex value
                 if (this.value.value.name === "ITNative") {
-                    return "Int : AType";
+                    return "Int";
+                    // return "Int : AType";
                 } else if (this.value.value.name === "ITBig") {
                     return "Integer : AType";
                 } else {
@@ -83,7 +84,8 @@ class PConstant extends PTermBase {
         } else if (name === "I") {
             name = "Int";
         }
-        return `${this.value} : ${name}`;
+        return this.value;
+        // return `${this.value} : ${name}`;
     }
 
     flat() {
@@ -534,11 +536,20 @@ var ProgramPi = React.createClass({
     // mixins: [LayeredComponentMixin],
     render: function() {
         var pi = this.props.pi;
-        var outerStyle = {display: 'table-cell'};
+        var outerStyle = { display: 'table-cell' };
+
+        var arrStyle = {
+            display: 'table-cell',
+            verticalAlign: 'top',
+            paddingTop: '20px',
+            fontSize: '120%',
+            float: 'left'
+        };
 
         var style = {
             display: 'table-cell',
-            padding: '10px'
+            padding: '10px',
+            float: 'left'
         };
         mergeInto(style, clearfix);
         RCSS.createClass(style);
@@ -560,6 +571,7 @@ var ProgramPi = React.createClass({
                     {pi.t1.component({workspace: this.props.workspace})}
                 </div>
             </div>
+            <TeX style={arrStyle}>\rightarrow</TeX>
             <div className={style.className} ref="ty2"
                  onMouseEnter={() => this.handleEnter(1)}
                  onMouseLeave={() => this.handleLeave(1)}>
