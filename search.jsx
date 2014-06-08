@@ -3,6 +3,7 @@
  */
 
 var React = require('react');
+var RCSS = require("RCSS");
 
 var ReactART = require('react-art');
 var Group = ReactART.Group;
@@ -26,46 +27,72 @@ var ResultC = React.createClass({
     }
 });
 
-var Result = function(contents) {
-    var raw = contents[0];
-    var docs = contents[1];
+var searchResultStyle = RCSS.createClass({
+    border: "1px solid black",
+    padding: "20px",
+    width: "300px",
+    overflowX: "scroll"
+});
 
-    this.contents = { raw, docs };
+var titleStyle = RCSS.createClass({
+    fontSize: "18px"
+});
 
-    // children which are Renderables
-    this.children = [TT.create(raw)];
-};
+var nameStyle = RCSS.createClass({
+    color: "#4183C4",
+    fontSize: "20px"
+});
 
-Result.prototype = new Renderable();
-Result.prototype.component = ResultC;
-Result.prototype.getSize = function() {
-    var sz = this.children[0].getSize();
-    return {
-        w: 300,
-        h: sz.h + 20
-    };
-};
+var searchResultContainerStyle = RCSS.createClass({
+    height: "100%",
+    position: "fixed",
+    right: 0,
+    overflowY: "scroll"
+});
+
+var ResultTitle = React.createClass({
+    propTypes: {
+        nameInfo: React.PropTypes.array.isRequired
+    },
+
+    render: function() {
+        var namespaceStr = this.props.nameInfo.contents[1].join("::");
+        var nameStr = this.props.nameInfo.contents[0].contents;
+
+        return <div className={titleStyle.className}>
+            <span>{namespaceStr}::</span>
+            <span className={nameStyle.className}>{nameStr}</span>
+        </div>;
+    }
+});
+
+var Result = React.createClass({
+    propTypes: {
+        result: React.PropTypes.array.isRequired
+    },
+
+    render: function() {
+        var descriptionHTML = this.props.result[2];
+        var nameInfo = this.props.result[0];
+        return <div className={searchResultStyle.className}>
+            <ResultTitle nameInfo={nameInfo} />
+            <br />
+            <div className="description" dangerouslySetInnerHTML={{
+                __html: descriptionHTML
+            }} />
+        </div>
+    }
+});
 
 var Search = React.createClass({
     render: function() {
-        var posY = 100;
-        var results = [];
+        var results = this.props.results.map(resultObj => 
+            <Result result={resultObj} />
+        );
 
-        for (var i = 0; i < this.props.results.length; i++) {
-            var item = this.props.results[i];
-            var obj = new Result(item);
-            posY += obj.getSize().h;
-            var trans = new Transform().move(0, posY);
-            results.push(obj.render(trans));
-        }
-
-        if (results.length === 0) {
-            results = null;
-        }
-
-        return <Group>
+        return <div className={searchResultContainerStyle.className}>
             {results}
-        </Group>;
+        </div>;
     }
 });
 

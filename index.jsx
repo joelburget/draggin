@@ -188,21 +188,41 @@ var update = function(newState) {
     requireUpdate = true;
     globalState = newState;
 
-    var tm = PTerm(intIntObj, null);
-    React.renderComponent(
-        tm,
-        document.getElementById("main")
-    );
+    if (mori.has_key(globalState, "searchResults")) {
+        React.renderComponent(
+            Search(mori.get(globalState, "searchResults"), null),
+            document.getElementById("main")
+        );
+    } else {
+        var tm = PTerm(intIntObj, null);
+        React.renderComponent(
+            tm,
+            document.getElementById("main")
+        );
+        // // var trans = new Transform().move(this.state.x, this.state.y);
+        // var trans = new Transform().move(200, 200);
+        // React.renderComponent(
+        //     <MySurface global={globalState}>
+        //         <Func inputs={["rafbatching", "g"]}
+        //               name="f"
+        //               trans={trans} />
+        //     </MySurface>,
+        //     document.getElementById("main")
+        // );
+    }
 };
 
 update(globalState);
 
-$.ajax('http://localhost:4296', {
-    data: '{"tag":"SearchType","contents":"++"}',
+// $.ajax('http://localhost:4296', {
+//     data: '{"tag":"SearchType","contents":"++"}',
+$.ajax('http://192.168.8.114:4296', {
+    data: '{"tag":"SearchName","contents":"++"}',
     type: 'POST'
 })
 .then(
     resp => {
+        console.log("search came back: ", resp);
         update(mori.assoc(globalState,
             "searchResults", resp
         ));
