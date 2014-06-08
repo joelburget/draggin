@@ -10,13 +10,9 @@ var Group = ReactART.Group;
 var Prims = require('./prims.jsx');
 var Renderable = Prims.Renderable;
 var Write = Prims.Write;
+var DataTypeMixin = Prims.DataTypeMixin;
 
-var DataTypeMixin = {
-    renderAlt: function() {
-        var cls = this.type.constrs[this.props.tag];
-        return cls(this.props);
-    }
-};
+var Name = require('./tt.jsx').Name;
 
 /*
 -- | High level language terms
@@ -63,6 +59,7 @@ data PTerm = PQuote Raw
 // let's do:
 // * PPi
 // * PConstant
+// * PRef
 //
 // what others?
 
@@ -104,6 +101,15 @@ var PPi = React.createClass({
 var PConstant = React.createClass({
     render: function() {
         return Const(this.props.contents);
+    }
+});
+
+// PRef FC Name
+var PRef = React.createClass({
+    render: function() {
+        return <div>
+            {Name(this.props.contents[1])}
+        </div>;
     }
 });
 
@@ -173,7 +179,7 @@ var PTerm = React.createClass({
         return this.renderAlt();
     },
     statics: {
-        constrs: { PPi, PConstant }
+        constrs: { PPi, PConstant, PRef }
     }
 });
 

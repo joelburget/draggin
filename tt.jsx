@@ -12,6 +12,7 @@ var Transform = ReactART.Transform;
 var Prims = require('./prims.jsx');
 var Renderable = Prims.Renderable;
 var Write = Prims.Write;
+var DataTypeMixin = Prims.DataTypeMixin;
 
 /*
 data Raw = Var Name
@@ -127,77 +128,56 @@ data Name = UN T.Text -- ^ User-provided name
           | SymRef Int -- ^ Reference to IBC file symbol table (used during serialization
 */
 
-// TODO - but ordering of contents matters, right?
-var Name = function(tag, component) {
-    this.tag = tag;
-    this.component = component;
-};
-
-Name.prototype = new Renderable();
-
-
 // UN T.Text
-
-var UNC = React.createClass({
+var UN = React.createClass({
     render: function() {
-        return <Write transform={this.props.trans}>
-            {this.props.contents.contents}
-        </Write>;
+        return <span>{this.props.contents}</span>;
     }
 });
 
-var UN = function(contents) {
-    this.contents = contents;
-};
-
-UN.prototype = new Name('UN', UNC);
-UN.prototype.getSize = function() {
-    return { w: 200, h: 20 };
-};
-
-
 // NS Name [T.Text]
-
-var NSC = React.createClass({
+var NS = React.createClass({
     render: function() {
         var contents = this.props.contents;
         var namespace = contents[1].slice().reverse().join('.');
-        var trans = new Transform().move(0, 30);
-        return <Group tranform={this.props.trans}>
-            <Write>{namespace}</Write>
-            <Group transform={trans}>{this.props.children}</Group>
-        </Group>;
+        return <div>
+            <div>{namespace}</div>
+            {Name(this.props.contents[0])}
+        </div>;
     }
 });
 
-var NS = function(obj) {
-    this.contents = obj.contents;
-    this.children = [create(obj.contents[0])];
-};
-
-NS.prototype = new Name('NS', NSC);
-NS.prototype.getSize = function() {
-    var sz = this.children[0].getSize();
-    return {
-        w: sz.w,
-        h: sz.h + 30
-    };
-};
-
-
 // MN Int T.Text
+var MN = React.createClass({
+    render: function() {
+        return <div>
+            <span>{this.props.contents[1]}</span>
+            {this.props.contents[0]}
+        </div>;
+    }
+});
 
-var MN = function(n, text) {
-    return new Name('MN', MNC, {n, text});
-};
+var NErased = React.createClass({
+    render: function() {
+        return <span>NErased</span>;
+    }
+});
 
-var NErased = function() {
-    return new Name('NErased', NErasedC, null);
-};
+var SN = React.createClass({
+    render: function() {
+        return <div>SN</div>;
+    }
+});
 
-var SN = function(specialName) {
-    return new Name('SN', SNC, {specialName});
-};
+var Name = React.createClass({
+    mixins: [DataTypeMixin],
+    render: function() {
+        return this.renderAlt();
+    },
+    statics: {
+        constrs: { UN, NS, MN, NErased, SN }
+    }
+});
 
 // SymRef?
 
@@ -251,8 +231,7 @@ var renderables = {
     // raw
     Var, RBind, RApp, RType, RForce, RConstant,
 
-    // name
-    UN, NS, MN, NErased, SN
+    Name
 
     // binder
 };

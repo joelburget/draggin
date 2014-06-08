@@ -155,30 +155,32 @@ var intIntObj = {
             contents: "__pi_arg"
         },
         {
-            tag: "PConstant",
-            contents: {
-                tag: "AType",
-                contents: {
-                    tag: "ATInt",
-                    contents: {
-                        tag: "ITNative",
-                        contents:[]
-                    }
+            tag: "PRef",
+            contents: [
+                {
+                    fc_fname: "(input)",
+                    fc_start: [ 1, 4 ],
+                    fc_end: [ 1, 4 ]
+                },
+                {
+                    tag: "UN",
+                    contents: "a"
                 }
-            }
+            ]
         },
         {
-            tag: "PConstant",
-            contents: {
-                tag: "AType" ,
-                contents: {
-                    tag: "ATInt",
-                    contents: {
-                        tag: "ITNative",
-                        contents: []
-                    }
+            tag: "PRef",
+            contents: [
+                {
+                    fc_fname: "(input)",
+                    fc_start: [ 1, 4 ],
+                    fc_end: [ 1, 4 ]
+                },
+                {
+                    tag: "UN",
+                    contents: "a"
                 }
-            }
+            ]
         }
     ]
 };
