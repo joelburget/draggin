@@ -258,11 +258,11 @@ class NameSpace {
     }
 
     get qualifiedName() {
-        return `${this.namespace()}::${this.baseName()}`;
+        return `${this.namespace()} :: ${this.baseName()}`;
     }
 
     get namespace() {
-        return this.parts.slice().reverse().join("::");
+        return this.parts.slice().reverse().join(" :: ");
     }
 
     get baseName() {
