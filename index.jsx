@@ -64,10 +64,10 @@ var Func = React.createClass({
 
 React.renderComponent(<Search />, document.getElementById("search"));
 
-var myTerm = PTerm(testobj);
-console.log(myTerm.flat())
+var myTerm = PTerm(require('./testjson.js'));
+console.log(myTerm.flat());
 
-React.renderComponent(myTerm.component(), document.getElementById("main")
+React.renderComponent(myTerm.component(), document.getElementById("main"));
 
 // enable react devtools :/
 // (it only loads if it can find react)

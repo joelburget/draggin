@@ -3,9 +3,14 @@
  */
 
 var React = require('react');
+var mergeInto = require('react/lib/mergeInto');
+var LayeredComponentMixin = require('react-components/layered-component-mixin');
 var _ = require('underscore');
+var RCSS = require('rcss');
 
-var RCSS = require("RCSS");
+var ReactART = require('react-art');
+var Group = ReactART.Group;
+var Surface = ReactART.Surface;
 
 var Prims = require('./prims.jsx');
 var Renderable = Prims.Renderable;
@@ -13,6 +18,19 @@ var Write = Prims.Write;
 var DataTypeMixin = Prims.DataTypeMixin;
 
 var Name = require('./tt.jsx').Name;
+var AsType = require('./astype.jsx');
+
+var clearfix = {
+    ':before': {
+        content: '""',
+        display: 'table'
+    },
+    ':after': {
+        content: '""',
+        display: 'table',
+        clear: 'both'
+    }
+};
 
 
 class PTermBase {
@@ -182,7 +200,7 @@ var ProgramNode = React.createClass({
             programNodeStyleHover.className :
             programNodeStyle.className;
         return this.transferPropsTo(
-            <div className={className} 
+            <div className={className}
                  onMouseEnter={() => this.setState({hovered: true})}
                  onMouseLeave={() => this.setState({hovered: false})}>
             {this.props.children}</div>);
@@ -346,13 +364,86 @@ var ProgramPi = React.createClass({
         pi: React.PropTypes.instanceOf(PPi).isRequired
     },
 
+    mixins: [LayeredComponentMixin],
     render: function() {
         var pi = this.props.pi;
-        return <ProgramNode>
-            {pi.t1.component()}
-            ->
-            {pi.t2.component()}
-        </ProgramNode>;
+        var outerStyle = {display: 'table-cell'};
+
+        var style = {
+            display: 'table-cell',
+            padding: '10px'
+        };
+        mergeInto(style, clearfix);
+        RCSS.createClass(style);
+
+        var name = null;
+        if (pi.name.name() !== '__pi_arg') {
+            name = <div style={{float: 'left'}}>
+                {Name(pi.name.name())}
+            </div>;
+        }
+
+        return <div style={outerStyle}>
+            <div className={style.className} ref="ty1"
+                 onMouseEnter={() => this.handleEnter(0)}
+                 onMouseLeave={() => this.handleLeave(0)}>
+                {name}
+                <div style={{float: 'left'}}>
+                    {pi.t1.component()}
+                </div>
+            </div>
+            <div className={style.className} ref="ty2"
+                 onMouseEnter={() => this.handleEnter(1)}
+                 onMouseLeave={() => this.handleLeave(1)}>
+                <div style={{float: 'left'}}>
+                    {pi.t2.component()}
+                </div>
+            </div>
+        </div>;
+    },
+
+    handleEnter: function(num) {
+        this.setState({ hover: num });
+    },
+
+    handleLeave: function(num) {
+        this.setState({ hover: null });
+    },
+
+    // blue chevrons
+    renderLayer: function() {
+        var types = [this.refs.ty1, this.refs.ty2];
+        var components = types.map((ty, ix) => {
+            var $node = $(ty.getDOMNode());
+            var props = $node.position();
+            var w = $node.innerWidth() - 6;
+            var h = 24;
+            mergeInto(props, { w, h });
+            props.left -= 10;
+            props.top += 2;
+            props.hover = ix === this.state.hover;
+
+            return AsType(props);
+        });
+
+        var $node = $(this.getDOMNode());
+        var offset = $node.offset();
+        var w = $node.outerWidth();
+        var h = $node.outerHeight();
+
+        var style = {
+            position: 'absolute',
+            zIndex: -1
+        };
+        mergeInto(style, offset);
+
+        return <Surface width={w} height={h} style={style}>
+            {components}
+        </Surface>;
+    },
+
+    getInitialState: function() {
+        return { hover: null };
     }
 });
 
