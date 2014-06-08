@@ -126,12 +126,31 @@ class PApp extends PTermBase {
     }
 }
 
+// PCase FC PTerm [(PTerm, PTerm)]
+class PCase extends PTermBase {
+    constructor(args) {
+        this.arg = PTerm(args[1]);
+        this.cases = args[2].map(arr => [PTerm(arr[0]), PTerm(arr[1])]);
+    }
+
+    flat() {
+        var cases = this.cases.map(tms => `${tms[0].flat()} => ${tms[1].flat()};`);
+        var flatCases = cases.join(', ');
+        return `(PCase ${this.arg.flat()} of ${flatCases})`;
+    }
+
+    component(props) {
+        return ProgramCase(_({cases: this}).extend(props));
+    }
+}
+
 var termTypes = {
-    "PPi": PPi,
-    "PConstant": PConstant,
-    "PRef": PRef,
-    "PAlternative": PAlternative,
-    "PApp": PApp
+    PPi,
+    PConstant,
+    PRef,
+    PAlternative,
+    PApp,
+    PCase
 };
 function PTerm(json) {
     return new termTypes[json.tag](json.contents);
@@ -480,6 +499,29 @@ var ProgramReference = React.createClass({
     render: function() {
         return <ProgramNode>
             {this.props.ref.name.name()}
+        </ProgramNode>;
+    }
+});
+
+var ProgramCase = React.createClass({
+    propTypes: {
+        cases: React.PropTypes.instanceOf(PCase).isRequired
+    },
+    render: function() {
+        var cases = this.props.cases;
+
+        var arg = cases.arg;
+        var cases = cases.cases;
+
+        var caseComponents = cases.map(tms => <div>
+            {tms[0].component()}
+            =>
+            {tms[1].component()}
+        </div>);
+
+        return <ProgramNode>
+            {arg.component()}
+            {caseComponents}
         </ProgramNode>;
     }
 });
