@@ -15,6 +15,30 @@ var DataTypeMixin = Prims.DataTypeMixin;
 var Name = require('./tt.jsx').Name;
 
 /*
+PExp { priority :: Int,
+       argopts :: [ArgOpt],
+       pname :: Name,
+       getTm :: t }
+*/
+var PExp = React.createClass({
+    render: function() {
+        // ignore argopts, priority, pname
+        return PTerm(this.props.getTm);
+    }
+});
+
+// PArg = PImp (..) | PExp (..) | PConstraint (..) | PTacImplicit (..)
+var PArg = React.createClass({
+    mixins: [DataTypeMixin],
+    render: function() {
+        return this.renderAlt();
+    },
+    statics: {
+        constrs: { PExp }
+    }
+});
+
+/*
 -- | High level language terms
 data PTerm = PQuote Raw
            | PRef FC Name
@@ -56,13 +80,6 @@ data PTerm = PQuote Raw
            | PNoImplicits PTerm -- ^ never run implicit converions on the term
 */
 
-// let's do:
-// * PPi
-// * PConstant
-// * PRef
-//
-// what others?
-
 // example:
 // Int -> Int
 //
@@ -84,9 +101,30 @@ data PTerm = PQuote Raw
 // 	   (PRef (...) (UN "a"))
 // 	   (PRef ...)
 
+// PApp FC PTerm [PArg] -- ^ e.g. IO (), List Char, length x
+var PApp = React.createClass({
+    render: function() {
+        var args = this.props.contents[2].map(PArg);
+        return <div>
+            {PTerm(this.props.contents[1])}
+            {args}
+        </div>;
+    }
+});
+
+// PAlternative Bool [PTerm] -- True if only one may work
+var PAlternative = React.createClass({
+    render: function() {
+        var alternatives = this.props.contents[1].map(PTerm);
+        return <div>
+            "Alternatives:"
+            {alternatives}
+        </div>;
+    }
+});
+
 // PPi Plicity Name PTerm PTerm -- ^ (n : t1) -> t2
 var PPi = React.createClass({
-    mixins: [DataTypeMixin],
     render: function() {
         var contents = this.props.contents;
         return <div>
@@ -150,6 +188,11 @@ var AType = React.createClass({
     }
 });
 
+var Int = React.createClass({
+    render: function() {
+        return <span>{this.props.contents}</span>;
+    }
+});
 
 /*
 data Const = I Int | BI Integer | Fl Double | Ch Char | Str String
@@ -169,7 +212,15 @@ var Const = React.createClass({
         return this.renderAlt();
     },
     statics: {
-        constrs: { AType }
+        constrs: {
+            AType,
+            BI: Int,
+            I: Int,
+            B8: Int,
+            B16: Int,
+            B32: Int,
+            B64: Int
+        }
     }
 });
 
@@ -179,7 +230,7 @@ var PTerm = React.createClass({
         return this.renderAlt();
     },
     statics: {
-        constrs: { PPi, PConstant, PRef }
+        constrs: { PPi, PConstant, PRef, PAlternative, PApp }
     }
 });
 

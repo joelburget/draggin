@@ -141,77 +141,18 @@ var globalState = mori.hash_map(
 // is this necessary? won't it update anyway?
 var requireUpdate = false;
 
-var intIntObj = {
-    tag: "PPi",
-    contents: [
-        {
-            tag: "Exp",
-            pstatic: "Dynamic",
-            pargopts: [],
-            pparam: false
-        },
-        {
-            tag: "UN",
-            contents: "__pi_arg"
-        },
-        {
-            tag: "PRef",
-            contents: [
-                {
-                    fc_fname: "(input)",
-                    fc_start: [ 1, 4 ],
-                    fc_end: [ 1, 4 ]
-                },
-                {
-                    tag: "UN",
-                    contents: "a"
-                }
-            ]
-        },
-        {
-            tag: "PRef",
-            contents: [
-                {
-                    fc_fname: "(input)",
-                    fc_start: [ 1, 4 ],
-                    fc_end: [ 1, 4 ]
-                },
-                {
-                    tag: "UN",
-                    contents: "a"
-                }
-            ]
-        }
-    ]
-};
+var testobj = require('./testjson.js');
 
 // transact in om
 var update = function(newState) {
     requireUpdate = true;
     globalState = newState;
 
-    if (mori.has_key(globalState, "searchResults")) {
-        React.renderComponent(
-            Search(mori.get(globalState, "searchResults"), null),
-            document.getElementById("main")
-        );
-    } else {
-        var tm = PTerm(intIntObj, null);
-        React.renderComponent(
-            tm,
-            document.getElementById("main")
-        );
-        // // var trans = new Transform().move(this.state.x, this.state.y);
-        // var trans = new Transform().move(200, 200);
-        // React.renderComponent(
-        //     <MySurface global={globalState}>
-        //         <Func inputs={["rafbatching", "g"]}
-        //               name="f"
-        //               trans={trans} />
-        //     </MySurface>,
-        //     document.getElementById("main")
-        // );
-    }
+    var tm = PTerm(testobj, null);
+    React.renderComponent(
+        tm,
+        document.getElementById("main")
+    );
 };
 
 update(globalState);
