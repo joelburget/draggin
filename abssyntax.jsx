@@ -534,6 +534,8 @@ var ProgramReference = React.createClass({
     }
 });
 
+var casesStyles = RCSS.createClass({});
+
 var ProgramCase = React.createClass({
     propTypes: {
         cases: React.PropTypes.instanceOf(PCase).isRequired
@@ -544,16 +546,24 @@ var ProgramCase = React.createClass({
         var arg = cases.arg;
         var cases = cases.cases;
 
-        var caseComponents = cases.map(tms => <div>
+        return <ProgramNode>
+            {arg.component()}
+            {this.getCaseComponents(cases)}
+        </ProgramNode>;
+    },
+
+    getCaseComponents: function(cases) {
+        // special case 1 case?
+
+        var components = cases.map(tms => <div>
             {tms[0].component()}
             <TeX>\Rightarrow</TeX>
             {tms[1].component()}
         </div>);
 
-        return <ProgramNode>
-            {arg.component()}
-            {caseComponents}
-        </ProgramNode>;
+        return <div className={casesStyles.className}>
+            {components}
+        </div>;
     }
 });
 
