@@ -17,7 +17,7 @@ var RightArr = Prims.RightArr;
 var Rect = Prims.Rect;
 var Write = Prims.Write;
 
-var PTerm = require('./abssyntax.jsx');
+var PTerm = require('./abssyntax.jsx').PTerm;
 
 var Search = require('./search.jsx');
 
@@ -64,10 +64,10 @@ var Func = React.createClass({
 
 React.renderComponent(<Search />, document.getElementById("search"));
 
-React.renderComponent(
-    PTerm(require('./testjson.js'), null),
-    document.getElementById("main")
-);
+var myTerm = PTerm(testobj);
+console.log(myTerm.flat())
+
+React.renderComponent(myTerm.component(), document.getElementById("main")
 
 // enable react devtools :/
 // (it only loads if it can find react)

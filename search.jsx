@@ -28,46 +28,6 @@ var TT = require('./tt.jsx');
 //           | SN SpecialName -- ^ Decorated function names
 //           | SymRef Int -- ^ Reference to IBC file symbol table (used during serialisation)
 
-class UserName {
-    constructor(args) {
-        this._name = args;
-    }
-
-    get name() {
-        return this._name;
-    }
-}
-class NameSpace {
-    constructor(args) {
-        this.enclosedName = Name(args[0]);
-        this.parts = args[1];
-    }
-
-    get qualifiedName() {
-        return `${this.namespace()}::${this.baseName()}`;
-    }
-
-    get namespace() {
-        return this.parts.join("::");
-    }
-
-    get baseName() {
-        return this.enclosedName.name();
-    }
-
-    get name() {
-        return this.qualifiedName();
-    }
-}
-
-var nameTypes = {
-    "NS": NameSpace,
-    "UN": UserName
-};
-function Name(json) {
-    return new nameTypes[json.tag](json.contents);
-}
-
 
 var searchContainerStyle = RCSS.createClass({
     height: "100%",
@@ -104,8 +64,8 @@ var searchResultContainerStyle = RCSS.createClass({
 var ResultTitle = React.createClass({
     propTypes: {
         name: React.PropTypes.oneOfType([
-            React.PropTypes.instanceOf(NameSpace),
-            React.PropTypes.instanceOf(UserName)
+            React.PropTypes.instanceOf(TT.NameSpace),
+            React.PropTypes.instanceOf(TT.UserName)
         ])
     },
 
@@ -124,7 +84,7 @@ var Result = React.createClass({
 
     render: function() {
         var descriptionHTML = this.props.result[2];
-        var name = Name(this.props.result[0]);
+        var name = TT.Name(this.props.result[0]);
         return <div className={searchResultStyle.className}>
             <ResultTitle name={name} />
             <br />
