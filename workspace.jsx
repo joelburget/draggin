@@ -24,8 +24,13 @@ var Workspace = React.createClass({
     tell: function(eventName, draggable) {
         console.log(eventName, draggable);
 
-        if (eventName === 'dragstart') {
-            this.setState({ draggingTerm: draggable });
+        switch (eventName) {
+            case 'dragstart':
+                this.setState({ draggingTerm: draggable });
+                break;
+            case 'dragend':
+                this.setState({ draggingTerm: null });
+                break;
         }
     },
 

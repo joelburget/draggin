@@ -221,16 +221,18 @@ var programNodeStyle = {
     padding: "5px"
 };
 
-var programNodeStyleHover = RCSS.merge(programNodeStyle, RCSS.createClass({
+var programNodeStyleHover = RCSS.merge(programNodeStyle, {
     borderColor: colors.borderColor
-}));
+});
 
-var programNodeStyleDrag = RCSS.merge(programNodeStyle, RCSS.createClass({
+var programNodeStyleDrag = RCSS.merge(programNodeStyle, {
     borderColor: colors.borderColor,
-    backgroundColor: colors.darker
-}));
+    backgroundColor: '#81D9FF'
+});
 
-programNodeStyle = RCSS.createClass(programNodeStyle);
+RCSS.createClass(programNodeStyle);
+RCSS.createClass(programNodeStyleHover);
+RCSS.createClass(programNodeStyleDrag);
 
 var ProgramNode = React.createClass({
     getInitialState: function() {
@@ -253,9 +255,10 @@ var ProgramNode = React.createClass({
         }
 
         return this.transferPropsTo(
-            <div className={programNodeStyle.className}
+            <div className={className}
                  draggable={true}
                  onDragStart={this.handleDragStart}
+                 onDragEnd={this.handleDragEnd}
                  onMouseEnter={() => this.setState({hovered: true})}
                  onMouseLeave={() => this.setState({hovered: false})}>
             {this.props.children}</div>);
@@ -263,6 +266,10 @@ var ProgramNode = React.createClass({
 
     handleDragStart: function(event) {
         this.props.workspace.tell('dragstart', this.props.draggable);
+    },
+
+    handleDragEnd: function(event) {
+        this.props.workspace.tell('dragend', this.props.draggable);
     }
 });
 
