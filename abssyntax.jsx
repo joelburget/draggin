@@ -55,6 +55,12 @@ class PPi extends PTermBase {
         var propsObj = _.extend({pi: this}, props);
         return ProgramPi(propsObj);
     }
+
+    canAccept(term) {
+        // true if the type of term matches a hole?
+        // or can this accept anything changing its type
+        return false;
+    }
 }
 class PConstant extends PTermBase {
     constructor(args) {
@@ -115,6 +121,10 @@ class PRef extends PTermBase {
     component(props) {
         var propsObj = _.extend({ref: this}, props);
         return ProgramReference(propsObj);
+    }
+
+    canAccept(term) {
+        return true;
     }
 }
 class PAlternative extends PTermBase {

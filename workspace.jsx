@@ -3,9 +3,19 @@
  */
 
 var React = require('react');
+var _ = require('underscore');
 
 var AbsSyntax = require('./abssyntax.jsx');
 var PTerm = AbsSyntax.PTerm;
+
+var sty = {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
+    padding: 20
+};
 
 var Workspace = React.createClass({
     propTypes: {
@@ -16,14 +26,23 @@ var Workspace = React.createClass({
             workspace: this
         };
 
-        return <section>
+        var hoverSty = this.state.beingHovered ?
+            { backgroundColor: 'rgb(218, 255, 243)' } :
+            {};
+        var style = _({}).extend(sty, hoverSty);
+
+        return <div style={style}
+                    onDragEnter={this.handleDragEnter}
+                    onDragLeave={this.handleDragLeave}
+                    onDragStart={this.handleDragStart}
+                    onDrop={this.handleDrop}>
             {this.props.terms.map(tm => tm.component(workspaceState))}
-        </section>;
+        </div>;
     },
 
     tell: function(event, ast) {
         var duplicate = event.shiftKey;
-        console.log(event.type, ast, event.target);
+
         switch (event.type) {
             case 'dragstart':
                 this.setState({ draggingTerm: ast });
@@ -33,7 +52,6 @@ var Workspace = React.createClass({
             case 'dragend':
                 // ast is the dragged node
                 this.setState({ draggingTerm: null });
-                return false;
                 break;
 
             case 'dragOver':
@@ -48,15 +66,34 @@ var Workspace = React.createClass({
                     // super highlight ast
                 }
                 // ast is being hovered over
+                event.stopPropagation();
                 break;
 
             case 'dragleave':
                 // ast is no longer being hovered over
+                event.stopPropagation();
                 break;
 
             case 'drop':
+                event.stopPropagation();
                 // ast is the target of the drop
         }
+    },
+
+    handleDragEnter: function(event) {
+        this.setState({ beingHovered: true });
+    },
+
+    handleDragLeave: function(event) {
+        this.setState({ beingHovered: false });
+    },
+
+    handleDragStart: function(event) {
+        event.stopPropagation();
+    },
+
+    handleDrop: function(event) {
+        console.log('drop');
     },
 
     getInitialState: function() {
