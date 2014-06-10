@@ -1,6 +1,8 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RebindableSyntax #-}
 
+module AbsSyntax where
+
 import FFI
 import Prelude hiding (concat, intercalate)
 import Fay.Text hiding (map)
@@ -77,8 +79,8 @@ flattenCases = intercalate " " . map (\(ifTm, thenTm) ->
 
 -- find all the places in the second term accepting the first
 -- howwwww
-holesAccepting :: Term -> Term -> [Term]
-holesAccepting = undefined
+-- holesAccepting :: Term -> Term -> [Term]
+-- holesAccepting = undefined
 
 renderComponent :: ReactComponent -> Element -> Fay ()
 renderComponent = ffi "React.renderComponent(%1, %2)"
@@ -87,8 +89,3 @@ renderComponent = ffi "React.renderComponent(%1, %2)"
 testTerm = Ref (UserName "x")
                (Pi (Ref (UserName "A") Type)
                    (Ref (UserName "B") Type))
-
-main :: Fay ()
-main = do
-    div <- getElementById "main"
-    renderComponent (termComponent testTerm) div

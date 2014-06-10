@@ -9,10 +9,13 @@ var reactifyES6 = function(file) {
 };
 
 gulp.task('makehs', function() {
-    gulp.watch('*.hs', function(event) {
-        console.error(event)
-        console.error('fay --package fay-text,fay-dom ' + event.path);
-        exec('fay --package fay-text,fay-dom ' + event.path);
+    gulp.watch('abssyntax.hs', function(event) {
+        var cmd = 'fay --strict AbsSyntax --package fay-text,fay-dom --library abssyntax.hs';
+        console.error(cmd);
+        exec(cmd, function(error, stdout, stderr) {
+            console.log(stdout);
+            console.log(stderr);
+        });
     });
 });
 

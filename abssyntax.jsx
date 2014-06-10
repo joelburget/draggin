@@ -153,7 +153,7 @@ var ProgramNode = React.createClass({
 // * infix operators (+, *, etc)
 // * prefix application (f g)
 // * special forms ([1,2])
-var App = React.createClass({
+window.App = React.createClass({
     render: function() {
         var form = this.recognizeForm();
         if (form === this.type.SPECIAL) {
@@ -257,7 +257,7 @@ var ProgramApplicationBrackets = React.createClass({
 });
 
 // Pi Term Term -- ^ n -> t2
-var Pi = React.createClass({
+window.Pi = React.createClass({
     // mixins: [LayeredComponentMixin],
     render: function() {
         var outerStyle = { display: 'table-cell' };
@@ -388,7 +388,7 @@ window.Type = React.createClass({
 var casesStyles = RCSS.createClass({});
 
 // Case Term [(Term, Term)]
-var Case = React.createClass({
+window.Case = React.createClass({
     render: function() {
         var cases = this.props.cases;
 
@@ -459,5 +459,9 @@ window.Term = React.createClass({
 });
 
 module.exports = {
+    Term,
+    Ref, Pi, App, Case, Type,
+
+    Name,
     UserName, MachineName
 };

@@ -61,7 +61,10 @@ var Func = React.createClass({
     }
 });
 
+var Abs = Strict.AbsSyntax;
+
 React.renderComponent(<Search />, document.getElementById("search"));
+React.renderComponent(Term(Abs.testTerm), document.getElementById("main"));
 
 // enable react devtools :/
 // (it only loads if it can find react)
