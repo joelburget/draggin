@@ -150,27 +150,6 @@ var ProgramNode = React.createClass({
     }
 });
 
-// example:
-// Int -> Int
-//
-// http://pastebin.com/0BSsKLAm
-//
-// PPi (Exp [] Dynamic False)
-// 	   (UN "__pi_arg")
-// 	   (PConstant
-// 	       (AType (ATInt ITNative)))
-// 	   (PConstant ...)
-//
-//
-// a -> a
-//
-// http://pastebin.com/xevYJkdx
-//
-// PPi (Exp [] Dynamic False)
-// 	   (UN "__pi_arg")
-// 	   (PRef (...) (UN "a"))
-// 	   (PRef ...)
-
 // PApp FC PTerm [PArg] -- ^ e.g. IO (), List Char, length x
 //
 // This is a really interesting class. It could look a few different ways
@@ -491,79 +470,6 @@ var ProgramCase = React.createClass({
         </div>;
     }
 });
-
-// var ATFloat = React.createClass({
-//     render: function() {
-//         return <div>Float</div>;
-//     }
-// });
-//
-// var IntTy = React.createClass({
-//     render: function() {
-//         return <div>Int</div>;
-//     }
-// });
-//
-// var ATInt = React.createClass({
-//     render: function() {
-//         return IntTy(this.props.contents);
-//     }
-// });
-//
-// var ArithTy = React.createClass({
-//     mixins: [DataTypeMixin],
-//     render: function() {
-//         return this.renderAlt();
-//     },
-//     statics: {
-//         constrs: { ATInt, ATFloat }
-//     }
-// });
-//
-// var AType = React.createClass({
-//     render: function() {
-//         return ArithTy(this.props.contents);
-//     },
-//     statics: {
-//         constrs: { ArithTy }
-//     }
-// });
-//
-// var Int = React.createClass({
-//     render: function() {
-//         return <span>{this.props.contents}</span>;
-//     }
-// });
-//
-/*
-// data Const = I Int | BI Integer | Fl Double | Ch Char | Str String
-//            | B8 Word8 | B16 Word16 | B32 Word32 | B64 Word64
-//            | B8V (Vector Word8) | B16V (Vector Word16)
-//            | B32V (Vector Word32) | B64V (Vector Word64)
-//            | AType ArithTy | StrType
-//            | PtrType | ManagedPtrType | BufferType | VoidType | Forgot
-// */
-// var Const = React.createClass({
-//     mixins: [DataTypeMixin],
-//     render: function() {
-//         if (this.props.contents.length === 0) {
-//             return <div>I dont understand this constant</div>;
-//         }
-//
-//         return this.renderAlt();
-//     },
-//     statics: {
-//         constrs: {
-//             AType,
-//             BI: Int,
-//             I: Int,
-//             B8: Int,
-//             B16: Int,
-//             B32: Int,
-//             B64: Int
-//         }
-//     }
-// });
 
 module.exports = {
     PTerm
