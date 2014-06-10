@@ -2,67 +2,68 @@
 {-# LANGUAGE RebindableSyntax #-}
 
 import FFI
-import Prelude
-import Fay.Text
+import Prelude hiding (concat, intercalate)
+import Fay.Text hiding (map)
 
 type Plicity = ()
 
 data Name = UserName Text
           | MachineName Int
 
-showInt :: Int -> Text
-showInt = fromString $ ffi "%1+''"
+showInt :: Int -> String
+showInt = ffi "%1+''"
+
+textInt :: Int -> Text
+textInt = fromString . showInt
 
 showName :: Name -> Text
 showName (UserName x) = x
-showName (MachineName i) = "MachineName " ++ showInt i
+showName (MachineName i) = "MachineName " `append` textInt i
 
-data Const = Const
-
-showConstant :: Const -> Text
-showConstant = "const"
-
-data PArg = PArg
-    { argTy :: PTerm
-    , argTm :: PTerm
-    }
-
-           -- rename to PName?
-data PTerm = PRef Name -- ^ a name reference. novel!
-
-           -- how can this case match on the first param? should it not
-           -- take a PTerm?
-           | PPi Name PTerm PTerm -- ^ (n : t1) -> t2
-
-           -- why not PApp PTerm PTerm?
-           | PApp PTerm [PArg] -- ^ e.g. IO (), List Char, length x
-
-           | PCase PTerm [(PTerm, PTerm)]
-
-           -- needed?
-           | PConstant Const
+data Term = Ref Name Term -- ^ n : t
+          | Pi Term Term -- ^ n -> t2
+          | App Term [Term] -- ^ e.g. IO (), List Char, length x
+          | Case Term [(Term, Term)]
 
 data ReactComponent
 
-component :: PTerm -> ReactComponent
-component tm@PRef{}      = ffi "Reference(%1)" tm
-component tm@PPi{}       = ffi "Pi(%1)" tm
-component tm@PApp{}      = ffi "App(%1)" tm
-component tm@PCase{}     = ffi "Case(%1)" tm
-component tm@PConstant{} = ffi "Constant(%1)" tm
+-- why is this done is such a convoluted way?
+-- https://github.com/faylang/fay/issues/253
+component :: Term -> ReactComponent
+component tm = component' tm tm where
+component' Ref{}  = ffiRef
+component' Pi{}   = ffiPi
+component' App{}  = ffiApp
+component' Case{} = ffiCase
 
-flat :: PTerm -> Text
-flat (PRef name) = showName name
-flat (PPi name tm1 tm2) = "(" ++ showName name ++ " : " ++ flat tm1 ++ ") -> " flat tm2
-flat (PApp (PRef name) args) = showName name ++ flattenArgs args
-flat (PApp tm args) = "(" ++ flat tm ++ ")" ++ flattenArgs args
-flat (PCase tm cases) = "(PCase " ++ flat tm ++ " of " ++ flattenCases cases ++ ")"
-flat (PConstant const) = showConstant const
+ffiRef :: Term -> ReactComponent
+ffiRef = ffi "Ref(%1)"
 
-flattenArgs = foldr (\tm str -> flat tm ++ " " ++ str) ""
-flattenCases = foldr (\(ifTm, thenTm) str -> "(" ++ flat ifTm ++ " => " ++ flat thenTm ++ ") " ++ str) ""
+ffiPi :: Term -> ReactComponent
+ffiPi = ffi "Pi(%1)"
+
+ffiApp :: Term -> ReactComponent
+ffiApp = ffi "App(%1)"
+
+ffiCase :: Term -> ReactComponent
+ffiCase = ffi "Case(%1)"
+
+flat :: Term -> Text
+flat (Ref name _) = showName name
+flat (Pi tm1 tm2) = concat [flat tm1, " -> ", flat tm2]
+flat (App (Ref name _) args) = concat [showName name, " ", flattenArgs args]
+flat (App tm args) = concat ["(", flat tm, ") ", flattenArgs args]
+flat (Case tm cases) = concat
+    ["(Case ", flat tm, " of ", flattenCases cases, ")"]
+
+flattenArgs = intercalate " " . map flat
+flattenCases = intercalate " " . map (\(ifTm, thenTm) ->
+    concat ["(", flat ifTm, " => ", flat thenTm, ") "])
 
 -- find all the places in the second term accepting the first
 -- howwwww
-holesAccepting :: PTerm -> PTerm -> [PTerm]
+holesAccepting :: Term -> Term -> [Term]
 holesAccepting = undefined
+
+main :: Fay ()
+main = putStrLn $ unpack "Hello Console!"
