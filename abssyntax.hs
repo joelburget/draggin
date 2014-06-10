@@ -36,6 +36,7 @@ data Term = Ref Name Term -- ^ n : t
           | Pi Term Term -- ^ n -> t2
           | App Term [Term] -- ^ e.g. IO (), List Char, length x
           | Case Term [(Term, Term)]
+          | Type
 
 -- why is this done is such a convoluted way?
 -- https://github.com/faylang/fay/issues/253
@@ -45,6 +46,7 @@ termComponent tm = component' tm tm where
     component' Pi{}   = ffiPi
     component' App{}  = ffiApp
     component' Case{} = ffiCase
+    component' Type{} = ffiType
 
 ffiRef :: Term -> ReactComponent
 ffiRef = ffi "Ref(%1)"
@@ -57,6 +59,9 @@ ffiApp = ffi "App(%1)"
 
 ffiCase :: Term -> ReactComponent
 ffiCase = ffi "Case(%1)"
+
+ffiType :: Term -> ReactComponent
+ffiType = ffi "Type(%1)"
 
 flat :: Term -> Text
 flat (Ref name _) = showName name
@@ -78,7 +83,12 @@ holesAccepting = undefined
 renderComponent :: ReactComponent -> Element -> Fay ()
 renderComponent = ffi "React.renderComponent(%1, %2)"
 
+-- implement Type
+testTerm = Ref (UserName "x")
+               (Pi (Ref (UserName "A") Type)
+                   (Ref (UserName "B") Type))
+
 main :: Fay ()
 main = do
     div <- getElementById "main"
-    renderComponent (nameComponent (UserName "x")) div
+    renderComponent (termComponent testTerm) div

@@ -21,7 +21,6 @@ var DataTypeMixin = Prims.DataTypeMixin;
 var colors = Prims.colors;
 var clearfix = Prims.clearfix;
 
-var Name = require('./tt.jsx').Name;
 var AsType = require('./astype.jsx');
 
 var programNodeStyle = {
@@ -67,12 +66,12 @@ var typeBanner = {
 };
 
 var nodeColors = {
-    "PCase": c.darkGreen,
-    "PPi": c.purple, // TODO :(
-    "PApp": c.aqua,
-    "PConstant": c.turquoise,
-    "PRef": c.orangeRed, // TODO :(
-    "PAlternative": c.darkRed
+    "Case": c.darkGreen,
+    "Pi": c.purple, // TODO :(
+    "App": c.aqua,
+    "Constant": c.turquoise,
+    "Ref": c.orangeRed, // TODO :(
+    "Alternative": c.darkRed
 };
 
 var typeBannerStyles = {};
@@ -261,7 +260,6 @@ var ProgramApplicationBrackets = React.createClass({
 var Pi = React.createClass({
     // mixins: [LayeredComponentMixin],
     render: function() {
-        var pi = this.props.pi;
         var outerStyle = { display: 'table-cell' };
 
         var arrStyle = {
@@ -281,11 +279,12 @@ var Pi = React.createClass({
         RCSS.createClass(style);
 
         var name = null;
-        if (pi.name.name() !== '__pi_arg') {
-            name = <div style={{float: 'left'}}>
-                {Name(pi.name.name())}
-            </div>;
-        }
+
+        return <div>
+            {Term(this.props.slot1)}
+            ->
+            {Term(this.props.slot2)}
+        </div>;
 
         return <ProgramNode style={outerStyle}
                             draggable={false}
@@ -367,10 +366,22 @@ var Pi = React.createClass({
 // Ref Name Term -- ^ n : t
 window.Ref = React.createClass({
     render: function() {
+        return <div>
+            {Name(this.props.slot1)} : {Term(this.props.slot2)}
+        </div>;
+
         return <ProgramNode ast={this.props.ref}
                             workspace={this.props.workspace}>
             {Name(this.props.slot1)} : {Term(this.props.slot2)}
         </ProgramNode>;
+    }
+});
+
+window.Type = React.createClass({
+    render: function() {
+        return <div>
+            Type
+        </div>;
     }
 });
 
@@ -416,6 +427,34 @@ window.MachineName = React.createClass({
         return <div>
             {this.props.slot1}
         </div>;
+    }
+});
+
+window.Name = React.createClass({
+    render: function() {
+        switch (this.props.instance) {
+            case 'UserName':
+                return UserName(this.props);
+            case 'MachineName':
+                return MachineName(this.props);
+        }
+    }
+});
+
+window.Term = React.createClass({
+    render: function() {
+        switch (this.props.instance) {
+            case 'Ref':
+                return Ref(this.props);
+            case 'Pi':
+                return Pi(this.props);
+            case 'App':
+                return App(this.props);
+            case 'Case':
+                return Case(this.props);
+            case 'Type':
+                return Type(this.props);
+        }
     }
 });
 
