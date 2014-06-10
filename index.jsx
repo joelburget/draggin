@@ -17,8 +17,6 @@ var RightArr = Prims.RightArr;
 var Rect = Prims.Rect;
 var Write = Prims.Write;
 
-var PTerm = require('./abssyntax.jsx').PTerm;
-
 var Search = require('./search.jsx');
 var Workspace = require('./workspace.jsx');
 
@@ -64,24 +62,6 @@ var Func = React.createClass({
 });
 
 React.renderComponent(<Search />, document.getElementById("search"));
-
-var testobj = require("./testjson.js");
-var myTerm = PTerm(testobj);
-var terms = [myTerm];
-
-var update = function() {
-    React.renderComponent(
-        <Workspace terms={terms} />,
-        document.getElementById("main")
-    );
-};
-update();
-
-window.parseAndShow = function(json) {
-    var parsed = JSON.parse(json);
-    terms.push(PTerm(parsed));
-    update();
-};
 
 // enable react devtools :/
 // (it only loads if it can find react)

@@ -88,10 +88,6 @@ programNodeStyle = RCSS.createClass(programNodeStyle);
 programNodeStyleHover = RCSS.createClass(programNodeStyleHover);
 
 var ProgramNode = React.createClass({
-    propTypes: {
-        ast: React.PropTypes.instanceOf(PTermBase)
-    },
-
     getInitialState: function() {
         return {
             hovered: false
@@ -150,7 +146,7 @@ var ProgramNode = React.createClass({
     }
 });
 
-// PApp FC PTerm [PArg] -- ^ e.g. IO (), List Char, length x
+// App Term [Term] -- ^ e.g. IO (), List Char, length x
 //
 // This is a really interesting class. It could look a few different ways
 // depending on the context.
@@ -158,11 +154,7 @@ var ProgramNode = React.createClass({
 // * infix operators (+, *, etc)
 // * prefix application (f g)
 // * special forms ([1,2])
-var ProgramApplication = React.createClass({
-    propTypes: {
-        app: React.PropTypes.instanceOf(PApp).isRequired
-    },
-
+var App = React.createClass({
     render: function() {
         var form = this.recognizeForm();
         if (form === this.type.SPECIAL) {
@@ -210,10 +202,6 @@ var ProgramApplication = React.createClass({
 });
 
 var ProgramApplicationBrackets = React.createClass({
-    propTypes: {
-        app: React.PropTypes.instanceOf(PApp).isRequired
-    },
-
     // show a list or vect in brackets
     render: function() {
         var app = this.props.app;
@@ -269,44 +257,8 @@ var ProgramApplicationBrackets = React.createClass({
     }
 });
 
-// PAlternative Bool [PTerm] -- True if only one may work
-var ProgramAlternative = React.createClass({
-    propTypes: {
-        alt: React.PropTypes.instanceOf(PAlternative).isRequired
-    },
-
-    seemsToBeInteger: function() {
-        var alt = this.props.alt;
-        return (alt.alternatives[0] instanceof PApp) &&
-            alt.alternatives[0].term.name.name() === "fromInteger";
-    },
-
-    render: function() {
-        var alt = this.props.alt;
-        if (this.seemsToBeInteger()) {
-            var ast = new PConstant({
-                tag: "I",
-                contents: alt.alternatives[0].args[0].term.value
-            });
-            return ast.component(_({ast}).extend(this.props));
-        }
-
-        var alternativeComponents = alt.alternatives.map(
-            a => a.component({workspace: this.props.workspace})
-        );
-        return <ProgramNode ast={alt} workspace={this.props.workspace}>
-            "Alternatives:"
-            {alternativeComponents}
-        </ProgramNode>;
-    }
-});
-
-// PPi Plicity Name PTerm PTerm -- ^ (n : t1) -> t2
-var ProgramPi = React.createClass({
-    propTypes: {
-        pi: React.PropTypes.instanceOf(PPi).isRequired
-    },
-
+// Pi Term Term -- ^ n -> t2
+var Pi = React.createClass({
     // mixins: [LayeredComponentMixin],
     render: function() {
         var pi = this.props.pi;
@@ -412,40 +364,20 @@ var ProgramPi = React.createClass({
     }
 });
 
-// PConstant Const
-var ProgramConstant = React.createClass({
-    propTypes: {
-        cnst: React.PropTypes.instanceOf(PConstant).isRequired
-    },
-
-    render: function() {
-        return <ProgramNode ast={this.props.cnst}
-                            workspace={this.props.workspace}>
-            {this.props.cnst.prettyRepr()}
-        </ProgramNode>;
-    }
-});
-
-// PRef FC Name
-var ProgramReference = React.createClass({
-    propTypes: {
-        ref: React.PropTypes.instanceOf(PRef).isRequired
-    },
-
+// Ref Name Term -- ^ n : t
+window.Ref = React.createClass({
     render: function() {
         return <ProgramNode ast={this.props.ref}
                             workspace={this.props.workspace}>
-            {this.props.ref.name.name()}
+            {Name(this.props.slot1)} : {Term(this.props.slot2)}
         </ProgramNode>;
     }
 });
 
 var casesStyles = RCSS.createClass({});
 
-var ProgramCase = React.createClass({
-    propTypes: {
-        cases: React.PropTypes.instanceOf(PCase).isRequired
-    },
+// Case Term [(Term, Term)]
+var Case = React.createClass({
     render: function() {
         var cases = this.props.cases;
 
@@ -471,6 +403,22 @@ var ProgramCase = React.createClass({
     }
 });
 
+window.UserName = React.createClass({
+    render: function() {
+        return <div>
+            {this.props.slot1}
+        </div>;
+    }
+});
+
+window.MachineName = React.createClass({
+    render: function() {
+        return <div>
+            {this.props.slot1}
+        </div>;
+    }
+});
+
 module.exports = {
-    PTerm
+    UserName, MachineName
 };

@@ -4,11 +4,27 @@
 import FFI
 import Prelude hiding (concat, intercalate)
 import Fay.Text hiding (map)
+import DOM
 
-type Plicity = ()
+data ReactComponent
 
 data Name = UserName Text
           | MachineName Int
+
+nameComponent :: Name -> ReactComponent
+nameComponent tm = nameComponent' tm tm where
+    nameComponent' UserName{} = ffiUserName
+    nameComponent' MachineName{} = ffiMachineName
+
+ffiUserName :: Name -> ReactComponent
+ffiUserName = ffi "UserName(%1)"
+
+ffiMachineName :: Name -> ReactComponent
+ffiMachineName = ffi "MachineName(%1)"
+
+showName :: Name -> Text
+showName (UserName x) = x
+showName (MachineName i) = "MachineName " `append` textInt i
 
 showInt :: Int -> String
 showInt = ffi "%1+''"
@@ -16,25 +32,19 @@ showInt = ffi "%1+''"
 textInt :: Int -> Text
 textInt = fromString . showInt
 
-showName :: Name -> Text
-showName (UserName x) = x
-showName (MachineName i) = "MachineName " `append` textInt i
-
 data Term = Ref Name Term -- ^ n : t
           | Pi Term Term -- ^ n -> t2
           | App Term [Term] -- ^ e.g. IO (), List Char, length x
           | Case Term [(Term, Term)]
 
-data ReactComponent
-
 -- why is this done is such a convoluted way?
 -- https://github.com/faylang/fay/issues/253
-component :: Term -> ReactComponent
-component tm = component' tm tm where
-component' Ref{}  = ffiRef
-component' Pi{}   = ffiPi
-component' App{}  = ffiApp
-component' Case{} = ffiCase
+termComponent :: Term -> ReactComponent
+termComponent tm = component' tm tm where
+    component' Ref{}  = ffiRef
+    component' Pi{}   = ffiPi
+    component' App{}  = ffiApp
+    component' Case{} = ffiCase
 
 ffiRef :: Term -> ReactComponent
 ffiRef = ffi "Ref(%1)"
@@ -65,5 +75,10 @@ flattenCases = intercalate " " . map (\(ifTm, thenTm) ->
 holesAccepting :: Term -> Term -> [Term]
 holesAccepting = undefined
 
+renderComponent :: ReactComponent -> Element -> Fay ()
+renderComponent = ffi "React.renderComponent(%1, %2)"
+
 main :: Fay ()
-main = putStrLn $ unpack "Hello Console!"
+main = do
+    div <- getElementById "main"
+    renderComponent (nameComponent (UserName "x")) div
