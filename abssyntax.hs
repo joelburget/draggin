@@ -9,20 +9,22 @@ import Fay.Text hiding (map)
 import DOM
 
 data ReactComponent
+data WorkspaceState
+type Lens = [Text]
 
 data Name = UserName Text
           | MachineName Int
 
-nameComponent :: Name -> ReactComponent
-nameComponent tm = nameComponent' tm tm where
+nameComponent :: Name -> Lens -> WorkspaceState -> ReactComponent
+nameComponent tm l st = nameComponent' tm tm l st where
     nameComponent' UserName{} = ffiUserName
     nameComponent' MachineName{} = ffiMachineName
 
-ffiUserName :: Name -> ReactComponent
-ffiUserName = ffi "UserName(%1)"
+ffiUserName :: Name -> Lens -> WorkspaceState -> ReactComponent
+ffiUserName = ffi "UserName({ast: %1, lens: %2, workspace: %3})"
 
-ffiMachineName :: Name -> ReactComponent
-ffiMachineName = ffi "MachineName(%1)"
+ffiMachineName :: Name -> Lens -> WorkspaceState -> ReactComponent
+ffiMachineName = ffi "MachineName({ast: %1, lens: %2, workspace: %3})"
 
 showName :: Name -> Text
 showName (UserName x) = x
@@ -42,28 +44,28 @@ data Term = Ref Name Term -- ^ n : t
 
 -- why is this done is such a convoluted way?
 -- https://github.com/faylang/fay/issues/253
-termComponent :: Term -> ReactComponent
-termComponent tm = component' tm tm where
+termComponent :: Term -> Lens -> WorkspaceState -> ReactComponent
+termComponent tm l st = component' tm tm l st where
     component' Ref{}  = ffiRef
     component' Pi{}   = ffiPi
     component' App{}  = ffiApp
     component' Case{} = ffiCase
     component' Type{} = ffiType
 
-ffiRef :: Term -> ReactComponent
-ffiRef = ffi "Ref(%1)"
+ffiRef :: Term -> Lens -> WorkspaceState -> ReactComponent
+ffiRef = ffi "Ref({ast: %1, lens: %2, workspace: %3})"
 
-ffiPi :: Term -> ReactComponent
-ffiPi = ffi "Pi(%1)"
+ffiPi :: Term -> Lens -> WorkspaceState -> ReactComponent
+ffiPi = ffi "Pi({ast: %1, lens: %2, workspace: %3})"
 
-ffiApp :: Term -> ReactComponent
-ffiApp = ffi "App(%1)"
+ffiApp :: Term -> Lens -> WorkspaceState -> ReactComponent
+ffiApp = ffi "App({ast: %1, lens: %2, workspace: %3})"
 
-ffiCase :: Term -> ReactComponent
-ffiCase = ffi "Case(%1)"
+ffiCase :: Term -> Lens -> WorkspaceState -> ReactComponent
+ffiCase = ffi "Case({ast: %1, lens: %2, workspace: %3})"
 
-ffiType :: Term -> ReactComponent
-ffiType = ffi "Type(%1)"
+ffiType :: Term -> Lens -> WorkspaceState -> ReactComponent
+ffiType = ffi "Type({ast: %1, lens: %2, workspace: %3})"
 
 flat :: Term -> Text
 flat (Ref name _) = showName name
@@ -85,7 +87,6 @@ flattenCases = intercalate " " . map (\(ifTm, thenTm) ->
 renderComponent :: ReactComponent -> Element -> Fay ()
 renderComponent = ffi "React.renderComponent(%1, %2)"
 
--- implement Type
 testTerm = Ref (UserName "x")
                (Pi (Ref (UserName "A") Type)
                    (Ref (UserName "B") Type))

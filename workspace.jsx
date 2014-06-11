@@ -6,7 +6,7 @@ var React = require('react');
 var _ = require('underscore');
 
 var AbsSyntax = require('./abssyntax.jsx');
-var PTerm = AbsSyntax.PTerm;
+var Term = AbsSyntax.Term;
 
 var sty = {
     position: 'absolute',
@@ -19,24 +19,25 @@ var sty = {
 
 var Workspace = React.createClass({
     propTypes: {
-        terms: React.PropTypes.arrayOf(React.PropTypes.instanceOf(PTerm))
+        terms: React.PropTypes.arrayOf(React.PropTypes.instanceOf(Term))
     },
     render: function() {
-        var workspaceState = {
-            workspace: this
-        };
-
         var hoverSty = this.state.beingHovered ?
             { backgroundColor: 'rgb(218, 255, 243)' } :
             {};
         var style = _({}).extend(sty, hoverSty);
+
 
         return <div style={style}
                     onDragEnter={this.handleDragEnter}
                     onDragLeave={this.handleDragLeave}
                     onDragStart={this.handleDragStart}
                     onDrop={this.handleDrop}>
-            {this.props.terms.map(tm => tm.component(workspaceState))}
+            {this.props.terms.map(tm => Term({
+                ast: tm,
+                lens: [],
+                workspace: this
+            }))}
         </div>;
     },
 

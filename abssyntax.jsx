@@ -86,6 +86,16 @@ typeBanner = RCSS.createClass(typeBanner);
 programNodeStyle = RCSS.createClass(programNodeStyle);
 programNodeStyleHover = RCSS.createClass(programNodeStyleHover);
 
+var buildProps = function(props, accessor) {
+    var newArr = props.lens.slice();
+    newArr.push(accessor);
+    return {
+        ast: props.ast[accessor],
+        lens: newArr,
+        workspace: props.workspace
+    };
+};
+
 var ProgramNode = React.createClass({
     getInitialState: function() {
         return {
@@ -154,6 +164,10 @@ var ProgramNode = React.createClass({
 // * prefix application (f g)
 // * special forms ([1,2])
 window.App = React.createClass({
+    propTypes: {
+        ast: React.PropTypes.object.isRequired,
+        lens: React.PropTypes.arrayOf(React.PropTypes.string).isRequired
+    },
     render: function() {
         var form = this.recognizeForm();
         if (form === this.type.SPECIAL) {
@@ -258,6 +272,10 @@ var ProgramApplicationBrackets = React.createClass({
 
 // Pi Term Term -- ^ n -> t2
 window.Pi = React.createClass({
+    propTypes: {
+        ast: React.PropTypes.object.isRequired,
+        lens: React.PropTypes.arrayOf(React.PropTypes.string).isRequired
+    },
     // mixins: [LayeredComponentMixin],
     render: function() {
         var outerStyle = { display: 'table-cell' };
@@ -281,9 +299,9 @@ window.Pi = React.createClass({
         var name = null;
 
         return <div>
-            {Term(this.props.slot1)}
+            {Term(buildProps(this.props, 'slot1'))}
             ->
-            {Term(this.props.slot2)}
+            {Term(buildProps(this.props, 'slot2'))}
         </div>;
 
         return <ProgramNode style={outerStyle}
@@ -365,19 +383,28 @@ window.Pi = React.createClass({
 
 // Ref Name Term -- ^ n : t
 window.Ref = React.createClass({
+    propTypes: {
+        ast: React.PropTypes.object.isRequired,
+        lens: React.PropTypes.arrayOf(React.PropTypes.string).isRequired
+    },
     render: function() {
         return <div>
-            {Name(this.props.slot1)} : {Term(this.props.slot2)}
+            {Name(buildProps(this.props, 'slot1'))} :
+            {Term(buildProps(this.props, 'slot2'))}
         </div>;
 
         return <ProgramNode ast={this.props.ref}
                             workspace={this.props.workspace}>
-            {Name(this.props.slot1)} : {Term(this.props.slot2)}
+            {Name(this.props.ast.slot1)} : {Term(this.props.ast.slot2)}
         </ProgramNode>;
     }
 });
 
 window.Type = React.createClass({
+    propTypes: {
+        ast: React.PropTypes.object.isRequired,
+        lens: React.PropTypes.arrayOf(React.PropTypes.string).isRequired
+    },
     render: function() {
         return <div>
             Type
@@ -389,8 +416,12 @@ var casesStyles = RCSS.createClass({});
 
 // Case Term [(Term, Term)]
 window.Case = React.createClass({
+    propTypes: {
+        ast: React.PropTypes.object.isRequired,
+        lens: React.PropTypes.arrayOf(React.PropTypes.string).isRequired
+    },
     render: function() {
-        var cases = this.props.cases;
+        var cases = this.props.ast.slot2;
 
         return <ProgramNode workspace={this.props.workspace}
                             ast={cases}>
@@ -417,7 +448,7 @@ window.Case = React.createClass({
 window.UserName = React.createClass({
     render: function() {
         return <div>
-            {this.props.slot1}
+            {this.props.ast.slot1}
         </div>;
     }
 });
@@ -425,36 +456,24 @@ window.UserName = React.createClass({
 window.MachineName = React.createClass({
     render: function() {
         return <div>
-            {this.props.slot1}
+            {this.props.ast.slot1}
         </div>;
     }
 });
 
 window.Name = React.createClass({
     render: function() {
-        switch (this.props.instance) {
-            case 'UserName':
-                return UserName(this.props);
-            case 'MachineName':
-                return MachineName(this.props);
-        }
+        return window[this.props.ast.instance](this.props);
     }
 });
 
 window.Term = React.createClass({
+    propTypes: {
+        ast: React.PropTypes.object.isRequired,
+        lens: React.PropTypes.arrayOf(React.PropTypes.string).isRequired
+    },
     render: function() {
-        switch (this.props.instance) {
-            case 'Ref':
-                return Ref(this.props);
-            case 'Pi':
-                return Pi(this.props);
-            case 'App':
-                return App(this.props);
-            case 'Case':
-                return Case(this.props);
-            case 'Type':
-                return Type(this.props);
-        }
+        return window[this.props.ast.instance](this.props);
     }
 });
 
