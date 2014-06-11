@@ -15,17 +15,6 @@ type Lens = [Text]
 data Name = UserName Text
           | MachineName Int
 
-nameComponent :: Name -> Lens -> WorkspaceState -> ReactComponent
-nameComponent tm l st = nameComponent' tm tm l st where
-    nameComponent' UserName{} = ffiUserName
-    nameComponent' MachineName{} = ffiMachineName
-
-ffiUserName :: Name -> Lens -> WorkspaceState -> ReactComponent
-ffiUserName = ffi "UserName({ast: %1, lens: %2, workspace: %3})"
-
-ffiMachineName :: Name -> Lens -> WorkspaceState -> ReactComponent
-ffiMachineName = ffi "MachineName({ast: %1, lens: %2, workspace: %3})"
-
 showName :: Name -> Text
 showName (UserName x) = x
 showName (MachineName i) = "MachineName " `append` textInt i
@@ -41,31 +30,6 @@ data Term = Ref Name Term -- ^ n : t
           | App Term [Term] -- ^ e.g. IO (), List Char, length x
           | Case Term [(Term, Term)]
           | Type
-
--- why is this done is such a convoluted way?
--- https://github.com/faylang/fay/issues/253
-termComponent :: Term -> Lens -> WorkspaceState -> ReactComponent
-termComponent tm l st = component' tm tm l st where
-    component' Ref{}  = ffiRef
-    component' Pi{}   = ffiPi
-    component' App{}  = ffiApp
-    component' Case{} = ffiCase
-    component' Type{} = ffiType
-
-ffiRef :: Term -> Lens -> WorkspaceState -> ReactComponent
-ffiRef = ffi "Ref({ast: %1, lens: %2, workspace: %3})"
-
-ffiPi :: Term -> Lens -> WorkspaceState -> ReactComponent
-ffiPi = ffi "Pi({ast: %1, lens: %2, workspace: %3})"
-
-ffiApp :: Term -> Lens -> WorkspaceState -> ReactComponent
-ffiApp = ffi "App({ast: %1, lens: %2, workspace: %3})"
-
-ffiCase :: Term -> Lens -> WorkspaceState -> ReactComponent
-ffiCase = ffi "Case({ast: %1, lens: %2, workspace: %3})"
-
-ffiType :: Term -> Lens -> WorkspaceState -> ReactComponent
-ffiType = ffi "Type({ast: %1, lens: %2, workspace: %3})"
 
 flat :: Term -> Text
 flat (Ref name _) = showName name
