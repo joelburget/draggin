@@ -88,7 +88,11 @@ programNodeStyle = RCSS.createClass(programNodeStyle);
 programNodeStyleHover = RCSS.createClass(programNodeStyleHover);
 
 var NodeMixin = {
-    mixins: [NodeMixin],
+    propTypes: {
+        ast: React.PropTypes.object.isRequired,
+        workspace: React.PropTypes.object.isRequired,
+        lens: React.PropTypes.arrayOf(React.PropTypes.string).isRequired
+    },
     buildProps: function(accessor) {
         var newArr = this.props.lens.slice();
         newArr.push(accessor);
@@ -97,6 +101,9 @@ var NodeMixin = {
             lens: newArr,
             workspace: this.props.workspace
         };
+    },
+    render: function() {
+        return ProgramNode(this.props, this._render());
     }
 };
 
@@ -168,11 +175,8 @@ var ProgramNode = React.createClass({
 // * prefix application (f g)
 // * special forms ([1,2])
 window.App = React.createClass({
-    propTypes: {
-        ast: React.PropTypes.object.isRequired,
-        lens: React.PropTypes.arrayOf(React.PropTypes.string).isRequired
-    },
-    render: function() {
+    mixins: [NodeMixin],
+    _render: function() {
         var form = this.recognizeForm();
         if (form === this.type.SPECIAL) {
             return this.transferPropsTo(ProgramApplicationBrackets());
@@ -190,9 +194,7 @@ window.App = React.createClass({
         } else { // prefix
             inner = [termComponent, argComponents];
         }
-        return <ProgramNode ast={app} workspace={this.props.workspace}>
-            {inner}
-        </ProgramNode>;
+        return inner;
     },
     recognizeForm: function() {
         var term = this.props.app.term;
@@ -276,13 +278,9 @@ var ProgramApplicationBrackets = React.createClass({
 
 // Pi Term Term -- ^ n -> t2
 window.Pi = React.createClass({
-    propTypes: {
-        ast: React.PropTypes.object.isRequired,
-        lens: React.PropTypes.arrayOf(React.PropTypes.string).isRequired
-    },
     // mixins: [LayeredComponentMixin],
     mixins: [NodeMixin],
-    render: function() {
+    _render: function() {
         var outerStyle = { display: 'table-cell' };
 
         var arrStyle = {
@@ -303,12 +301,11 @@ window.Pi = React.createClass({
 
         var name = null;
 
-        return <ProgramNode ast={this.props.ast}
-                            workspace={this.props.workspace}>
-            {Term(this.buildProps('slot1'))}
-            <TeX>\rightarrow</TeX>
-            {Term(this.buildProps('slot2'))}
-        </ProgramNode>;
+        return [
+            Term(this.buildProps('slot1')),
+            <TeX>\rightarrow</TeX>,
+            Term(this.buildProps('slot2'))
+        ];
 
         return <ProgramNode style={outerStyle}
                             draggable={false}
@@ -390,29 +387,18 @@ window.Pi = React.createClass({
 // Ref Name Term -- ^ n : t
 window.Ref = React.createClass({
     mixins: [NodeMixin],
-    propTypes: {
-        ast: React.PropTypes.object.isRequired,
-        lens: React.PropTypes.arrayOf(React.PropTypes.string).isRequired
-    },
-    render: function() {
-        return <ProgramNode ast={this.props.ast}
-                            workspace={this.props.workspace}>
-            {Name(this.buildProps('slot1'))} :
-            {Term(this.buildProps('slot2'))}
-        </ProgramNode>;
+    _render: function() {
+        return [
+            Name(this.buildProps('slot1')),
+            Term(this.buildProps('slot2'))
+        ];
     }
 });
 
 window.Type = React.createClass({
-    propTypes: {
-        ast: React.PropTypes.object.isRequired,
-        lens: React.PropTypes.arrayOf(React.PropTypes.string).isRequired
-    },
-    render: function() {
-        return <ProgramNode ast={this.props.ast}
-                            workspace={this.props.workspace}>
-            Type
-        </ProgramNode>;
+    mixins: [NodeMixin],
+    _render: function() {
+        return "Type";
     }
 });
 
@@ -420,18 +406,14 @@ var casesStyles = RCSS.createClass({});
 
 // Case Term [(Term, Term)]
 window.Case = React.createClass({
-    propTypes: {
-        ast: React.PropTypes.object.isRequired,
-        lens: React.PropTypes.arrayOf(React.PropTypes.string).isRequired
-    },
-    render: function() {
+    mixins: [NodeMixin],
+    _render: function() {
         var cases = this.props.ast.slot2;
 
-        return <ProgramNode workspace={this.props.workspace}
-                            ast={cases}>
-            {cases.arg.component({workspace: this.props.workspace})}
-            {this.getCaseComponents(cases.cases)}
-        </ProgramNode>;
+        return [
+            cases.arg.component({workspace: this.props.workspace}),
+            this.getCaseComponents(cases.cases)
+        ];
     },
 
     getCaseComponents: function(cases) {
@@ -450,20 +432,16 @@ window.Case = React.createClass({
 });
 
 window.UserName = React.createClass({
-    render: function() {
-        return <ProgramNode ast={this.props.ast}
-                            workspace={this.props.workspace}>
-            {this.props.ast.slot1}
-        </ProgramNode>;
+    mixins: [NodeMixin],
+    _render: function() {
+        return this.props.ast.slot1;
     }
 });
 
 window.MachineName = React.createClass({
-    render: function() {
-        return <ProgramNode ast={this.props.ast}
-                            workspace={this.props.workspace}>
-            {this.props.ast.slot1}
-        </ProgramNode>;
+    mixins: [NodeMixin],
+    _render: function() {
+        return this.props.ast.slot1;
     }
 });
 
@@ -474,10 +452,6 @@ window.Name = React.createClass({
 });
 
 window.Term = React.createClass({
-    propTypes: {
-        ast: React.PropTypes.object.isRequired,
-        lens: React.PropTypes.arrayOf(React.PropTypes.string).isRequired
-    },
     render: function() {
         return window[this.props.ast.instance](this.props);
     }
