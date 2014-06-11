@@ -8,10 +8,6 @@ import Prelude hiding (concat, intercalate)
 import Fay.Text hiding (map)
 import DOM
 
-data ReactComponent
-data WorkspaceState
-type Lens = [Text]
-
 data Name = UserName Text
           | MachineName Int
 
@@ -47,9 +43,6 @@ flattenCases = intercalate " " . map (\(ifTm, thenTm) ->
 -- howwwww
 -- holesAccepting :: Term -> Term -> [Term]
 -- holesAccepting = undefined
-
-renderComponent :: ReactComponent -> Element -> Fay ()
-renderComponent = ffi "React.renderComponent(%1, %2)"
 
 testTerm = Ref (UserName "x")
                (Pi (Ref (UserName "A") Type)
