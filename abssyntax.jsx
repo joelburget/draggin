@@ -69,7 +69,7 @@ var nodeColors = {
     "Case": c.darkGreen,
     "Pi": c.purple,
     "App": c.aqua,
-    "Ref": c.orangeRed, // TODO :(
+    "Ref": c.orangeRed,
     "Type": c.darkRed,
     "UserName": c.turquoise,
     "MachineName": c.orangeRed
@@ -87,14 +87,17 @@ typeBanner = RCSS.createClass(typeBanner);
 programNodeStyle = RCSS.createClass(programNodeStyle);
 programNodeStyleHover = RCSS.createClass(programNodeStyleHover);
 
-var buildProps = function(props, accessor) {
-    var newArr = props.lens.slice();
-    newArr.push(accessor);
-    return {
-        ast: props.ast[accessor],
-        lens: newArr,
-        workspace: props.workspace
-    };
+var NodeMixin = {
+    mixins: [NodeMixin],
+    buildProps: function(accessor) {
+        var newArr = this.props.lens.slice();
+        newArr.push(accessor);
+        return {
+            ast: this.props.ast[accessor],
+            lens: newArr,
+            workspace: this.props.workspace
+        };
+    }
 };
 
 var ProgramNode = React.createClass({
@@ -278,6 +281,7 @@ window.Pi = React.createClass({
         lens: React.PropTypes.arrayOf(React.PropTypes.string).isRequired
     },
     // mixins: [LayeredComponentMixin],
+    mixins: [NodeMixin],
     render: function() {
         var outerStyle = { display: 'table-cell' };
 
@@ -301,9 +305,9 @@ window.Pi = React.createClass({
 
         return <ProgramNode ast={this.props.ast}
                             workspace={this.props.workspace}>
-            {Term(buildProps(this.props, 'slot1'))}
+            {Term(this.buildProps('slot1'))}
             <TeX>\rightarrow</TeX>
-            {Term(buildProps(this.props, 'slot2'))}
+            {Term(this.buildProps('slot2'))}
         </ProgramNode>;
 
         return <ProgramNode style={outerStyle}
@@ -385,6 +389,7 @@ window.Pi = React.createClass({
 
 // Ref Name Term -- ^ n : t
 window.Ref = React.createClass({
+    mixins: [NodeMixin],
     propTypes: {
         ast: React.PropTypes.object.isRequired,
         lens: React.PropTypes.arrayOf(React.PropTypes.string).isRequired
@@ -392,8 +397,8 @@ window.Ref = React.createClass({
     render: function() {
         return <ProgramNode ast={this.props.ast}
                             workspace={this.props.workspace}>
-            {Name(buildProps(this.props, 'slot1'))} :
-            {Term(buildProps(this.props, 'slot2'))}
+            {Name(this.buildProps('slot1'))} :
+            {Term(this.buildProps('slot2'))}
         </ProgramNode>;
     }
 });
