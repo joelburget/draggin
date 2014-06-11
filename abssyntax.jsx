@@ -67,11 +67,12 @@ var typeBanner = {
 
 var nodeColors = {
     "Case": c.darkGreen,
-    "Pi": c.purple, // TODO :(
+    "Pi": c.purple,
     "App": c.aqua,
-    "Constant": c.turquoise,
     "Ref": c.orangeRed, // TODO :(
-    "Alternative": c.darkRed
+    "Type": c.darkRed,
+    "UserName": c.turquoise,
+    "MachineName": c.orangeRed
 };
 
 var typeBannerStyles = {};
@@ -111,7 +112,7 @@ var ProgramNode = React.createClass({
 
         var ast = this.props.ast;
         var typeBannerClassName = ast ?
-            typeBannerStyles[ast.constructor.name].className :
+            typeBannerStyles[ast.instance].className :
             typeBanner.className;
 
         // TODO why doesn't this work
@@ -298,11 +299,12 @@ window.Pi = React.createClass({
 
         var name = null;
 
-        return <div>
+        return <ProgramNode ast={this.props.ast}
+                            workspace={this.props.workspace}>
             {Term(buildProps(this.props, 'slot1'))}
-            ->
+            <TeX>\rightarrow</TeX>
             {Term(buildProps(this.props, 'slot2'))}
-        </div>;
+        </ProgramNode>;
 
         return <ProgramNode style={outerStyle}
                             draggable={false}
@@ -388,14 +390,10 @@ window.Ref = React.createClass({
         lens: React.PropTypes.arrayOf(React.PropTypes.string).isRequired
     },
     render: function() {
-        return <div>
+        return <ProgramNode ast={this.props.ast}
+                            workspace={this.props.workspace}>
             {Name(buildProps(this.props, 'slot1'))} :
             {Term(buildProps(this.props, 'slot2'))}
-        </div>;
-
-        return <ProgramNode ast={this.props.ref}
-                            workspace={this.props.workspace}>
-            {Name(this.props.ast.slot1)} : {Term(this.props.ast.slot2)}
         </ProgramNode>;
     }
 });
@@ -406,9 +404,10 @@ window.Type = React.createClass({
         lens: React.PropTypes.arrayOf(React.PropTypes.string).isRequired
     },
     render: function() {
-        return <div>
+        return <ProgramNode ast={this.props.ast}
+                            workspace={this.props.workspace}>
             Type
-        </div>;
+        </ProgramNode>;
     }
 });
 
@@ -447,17 +446,19 @@ window.Case = React.createClass({
 
 window.UserName = React.createClass({
     render: function() {
-        return <div>
+        return <ProgramNode ast={this.props.ast}
+                            workspace={this.props.workspace}>
             {this.props.ast.slot1}
-        </div>;
+        </ProgramNode>;
     }
 });
 
 window.MachineName = React.createClass({
     render: function() {
-        return <div>
+        return <ProgramNode ast={this.props.ast}
+                            workspace={this.props.workspace}>
             {this.props.ast.slot1}
-        </div>;
+        </ProgramNode>;
     }
 });
 
