@@ -40,7 +40,8 @@ flattenCases = intercalate " " . map (\(ifTm, thenTm) ->
     concat ["(", flat ifTm, " => ", flat thenTm, ") "])
 
 -- find all the places in the second term accepting the first
--- howwwww
+-- this needs to return a lens rather than the term itself so that we can
+-- compare without using ===
 holesAccepting :: Term -> Term -> [Term]
 -- a ref accepts everything but is accepted by nothing
 holesAccepting Ref{} _ = []

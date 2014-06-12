@@ -47,9 +47,15 @@ var programNodeStyleDrag = merge(
     }
 );
 
+var programNodeStyleAccepting = merge(
+    programNodeStyle,
+    { backgroundColor: 'red' }
+);
+
 RCSS.createClass(programNodeStyle);
 RCSS.createClass(programNodeStyleHover);
 RCSS.createClass(programNodeStyleDrag);
+RCSS.createClass(programNodeStyleAccepting);
 
 var c = {
     darkGreen: "#5b9032",
@@ -126,19 +132,22 @@ var ProgramNode = React.createClass({
     },
 
     render: function() {
-        var className = programNodeStyle.className;
-        // var className = this.state.hovered ?
-        //     programNodeStyleHover.className :
-        //     programNodeStyle.className;
-
         var ast = this.props.ast;
 
-        // TODO why doesn't this work
         var beingDragged =
             this.props.workspace.state.draggingTerm === this.props.ast;
+        if (this.props.workspace.state.holesAccepting.length &&
+            this.props.ast.instance === 'Ref') {
+                debugger;
+        }
+        var accepting = _(this.props.workspace.state.holesAccepting)
+            .contains(this.props.ast);
 
+        var className = programNodeStyle.className;
         if (beingDragged) {
             className = programNodeStyleDrag.className;
+        } else if (accepting) {
+            className = programNodeStyleAccepting.className;
         } else if (this.state.hovered) {
             className = programNodeStyleHover.className;
         }

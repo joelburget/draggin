@@ -48,13 +48,21 @@ var Workspace = React.createClass({
 
         switch (event.type) {
             case 'dragstart':
-                this.setState({ draggingTerm: ast });
+                var holes = this.props.terms.map(tm => holesAccepting(ast, tm));
+                holes = _(holes).flatten();
+                this.setState({
+                    draggingTerm: ast,
+                    holesAccepting: holes
+                });
                 event.stopPropagation();
                 break;
 
             case 'dragend':
                 // ast is the dragged node
-                this.setState({ draggingTerm: null });
+                this.setState({
+                    draggingTerm: null,
+                    holesAccepting: []
+                });
                 break;
 
             case 'dragOver':
@@ -103,7 +111,8 @@ var Workspace = React.createClass({
 
     getInitialState: function() {
         return {
-            draggingTerm: null
+            draggingTerm: null,
+            holesAccepting: []
         };
     }
 });
