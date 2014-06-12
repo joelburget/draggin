@@ -9,8 +9,8 @@ var reactifyES6 = function(file) {
 };
 
 gulp.task('makehs', function() {
-    gulp.watch('abssyntax.hs', function(event) {
-        var cmd = 'fay --strict AbsSyntax --package fay-text,fay-dom --library abssyntax.hs';
+    gulp.watch('hs/abssyntax.hs', function(event) {
+        var cmd = 'fay --strict AbsSyntax --package fay-text,fay-dom --library hs/abssyntax.hs -o build/abssyntax.js';
         console.error(cmd);
         exec(cmd, function(error, stdout, stderr) {
             console.log(stdout);
@@ -20,7 +20,7 @@ gulp.task('makehs', function() {
 });
 
 gulp.task('serve', function() {
-    var bundler = watchify('./index.jsx');
+    var bundler = watchify('./js/index.jsx');
     bundler.transform(reactifyES6);
 
     // rebundle every time index changes and leave some logspam
@@ -30,7 +30,7 @@ gulp.task('serve', function() {
     function rebundle () {
       return bundler.bundle()
         .pipe(source('bundle.js'))
-        .pipe(gulp.dest('./'))
+        .pipe(gulp.dest('./build/'))
     }
 
     return rebundle();
