@@ -124,6 +124,13 @@ var TypeBanner = React.createClass({
     }
 });
 
+_.mixin({
+    hasEqual: function(arr, val) {
+        return _(arr).foldl((memo, item) => memo || _(val).isEqual(item),
+            false);
+    }
+});
+
 var ProgramNode = React.createClass({
     getInitialState: function() {
         return {
@@ -136,12 +143,9 @@ var ProgramNode = React.createClass({
 
         var beingDragged =
             this.props.workspace.state.draggingTerm === this.props.ast;
-        if (this.props.workspace.state.holesAccepting.length &&
-            this.props.ast.instance === 'Ref') {
-                debugger;
-        }
+
         var accepting = _(this.props.workspace.state.holesAccepting)
-            .contains(this.props.ast);
+            .hasEqual(this.props.lens);
 
         var className = programNodeStyle.className;
         if (beingDragged) {

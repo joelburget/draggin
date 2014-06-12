@@ -49,7 +49,12 @@ var Workspace = React.createClass({
         switch (event.type) {
             case 'dragstart':
                 var holes = this.props.terms.map(tm => holesAccepting(ast, tm));
-                holes = _(holes).flatten();
+
+                // flatten this from [[Lens]] to [Lens]. Only flatten one level
+                // because a lens is itself a list - we don't want to go
+                // [[[String]]] -> [String]!
+                holes = _(holes).flatten(true);
+
                 this.setState({
                     draggingTerm: ast,
                     holesAccepting: holes

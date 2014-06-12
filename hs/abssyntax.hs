@@ -39,19 +39,23 @@ flattenArgs = intercalate " " . map flat
 flattenCases = intercalate " " . map (\(ifTm, thenTm) ->
     concat ["(", flat ifTm, " => ", flat thenTm, ") "])
 
+type Lens = [Text]
+
 -- find all the places in the second term accepting the first
--- this needs to return a lens rather than the term itself so that we can
--- compare without using ===
-holesAccepting :: Term -> Term -> [Term]
+holesAccepting :: Term -> Term -> [Lens]
 -- a ref accepts everything but is accepted by nothing
 holesAccepting Ref{} _ = []
-holesAccepting _ r@(Ref{}) = [r]
+holesAccepting _ Ref{} = [[]]
 
-holesAccepting x (Pi tm1 tm2) = holesAccepting x tm1 ++ holesAccepting x tm2
+holesAccepting x (Pi tm1 tm2) =
+    map ("slot1":) (holesAccepting x tm1) ++
+    map ("slot2":) (holesAccepting x tm2)
 holesAccepting x (App tm tms) =
-    holesAccepting x tm ++ concatMap (holesAccepting x) tms
-holesAccepting x (Case tm cases) = holesAccepting x tm ++
-    concatMap (\(tm1, tm2) -> holesAccepting x tm1 ++ holesAccepting x tm2) cases
+    map ("slot1":) (holesAccepting x tm) ++
+    map ("slot2":) (concatMap (holesAccepting x) tms) -- TODO
+holesAccepting x (Case tm cases) =
+    map ("slot1":) (holesAccepting x tm) ++
+    map ("slot2":) (concatMap (\(tm1, tm2) -> holesAccepting x tm1 ++ holesAccepting x tm2) cases) -- TODO
 holesAccepting _ Type = []
 
 testTerm = Ref (UserName "x")
