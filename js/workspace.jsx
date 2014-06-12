@@ -7,6 +7,8 @@ var _ = require('underscore');
 
 var AbsSyntax = require('./abssyntax.jsx');
 var Term = AbsSyntax.Term;
+var Abs = Strict.AbsSyntax;
+var holesAccepting = Abs.holesAccepting;
 
 var sty = {
     position: 'absolute',
@@ -63,9 +65,11 @@ var Workspace = React.createClass({
                 break;
 
             case 'dragenter':
+                /*
                 if (ast.canAccept(this.state.draggingTerm)) {
                     // super highlight ast
                 }
+                */
                 // ast is being hovered over
                 event.stopPropagation();
                 break;

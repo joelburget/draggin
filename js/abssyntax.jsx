@@ -4,6 +4,7 @@
 
 var React = require('react');
 var cx = require('react/addons').classSet;
+var merge = require('react/lib/merge');
 var mergeInto = require('react/lib/mergeInto');
 var LayeredComponentMixin = require('react-components/layered-component-mixin');
 var TeX = require('react-components/tex');
@@ -34,14 +35,17 @@ var programNodeStyle = {
     position: "relative"
 };
 
-var programNodeStyleHover = RCSS.merge(programNodeStyle, {
-    borderColor: colors.borderColor
-});
+var programNodeStyleHover = merge(
+    programNodeStyle,
+    { borderColor: colors.borderColor }
+);
 
-var programNodeStyleDrag = RCSS.merge(programNodeStyle, {
-    borderColor: colors.borderColor,
-    backgroundColor: '#81D9FF'
-});
+var programNodeStyleDrag = merge(
+    programNodeStyle, {
+        borderColor: colors.borderColor,
+        backgroundColor: '#81D9FF'
+    }
+);
 
 RCSS.createClass(programNodeStyle);
 RCSS.createClass(programNodeStyleHover);
@@ -84,8 +88,6 @@ _.each(nodeColors, (v, k) => {
 });
 
 typeBanner = RCSS.createClass(typeBanner);
-programNodeStyle = RCSS.createClass(programNodeStyle);
-programNodeStyleHover = RCSS.createClass(programNodeStyleHover);
 
 var NodeMixin = {
     propTypes: {
@@ -107,6 +109,15 @@ var NodeMixin = {
     }
 };
 
+var TypeBanner = React.createClass({
+    render: function() {
+        var typeBannerClassName = this.props.ast ?
+            typeBannerStyles[this.props.ast.instance].className :
+            typeBanner.className;
+        return <div className={typeBannerClassName} />;
+    }
+});
+
 var ProgramNode = React.createClass({
     getInitialState: function() {
         return {
@@ -121,9 +132,6 @@ var ProgramNode = React.createClass({
         //     programNodeStyle.className;
 
         var ast = this.props.ast;
-        var typeBannerClassName = ast ?
-            typeBannerStyles[ast.instance].className :
-            typeBanner.className;
 
         // TODO why doesn't this work
         var beingDragged =
@@ -150,7 +158,7 @@ var ProgramNode = React.createClass({
                  onMouseLeave={() => this.setState({hovered: false})}>
 
                 {this.props.children}
-                <div className={typeBannerClassName} />
+                <TypeBanner ast={ast} />
 
             </div>);
     },
@@ -390,6 +398,7 @@ window.Ref = React.createClass({
     _render: function() {
         return [
             Name(this.buildProps('slot1')),
+            ":",
             Term(this.buildProps('slot2'))
         ];
     }
@@ -432,16 +441,18 @@ window.Case = React.createClass({
 });
 
 window.UserName = React.createClass({
-    mixins: [NodeMixin],
-    _render: function() {
-        return this.props.ast.slot1;
+    render: function() {
+        return <div className={programNodeStyle.className}>
+            {this.props.ast.slot1}
+        </div>;
     }
 });
 
 window.MachineName = React.createClass({
-    mixins: [NodeMixin],
-    _render: function() {
-        return this.props.ast.slot1;
+    render: function() {
+        return <div className={programNodeStyle.className}>
+            {this.props.ast.slot1}
+        </div>;
     }
 });
 

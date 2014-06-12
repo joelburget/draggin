@@ -5,7 +5,7 @@ module AbsSyntax where
 
 import FFI
 import Prelude hiding (concat, intercalate)
-import Fay.Text hiding (map)
+import Fay.Text hiding (map, concatMap)
 import DOM
 
 data Name = UserName Text
@@ -41,8 +41,17 @@ flattenCases = intercalate " " . map (\(ifTm, thenTm) ->
 
 -- find all the places in the second term accepting the first
 -- howwwww
--- holesAccepting :: Term -> Term -> [Term]
--- holesAccepting = undefined
+holesAccepting :: Term -> Term -> [Term]
+-- a ref accepts everything but is accepted by nothing
+holesAccepting Ref{} _ = []
+holesAccepting _ r@(Ref{}) = [r]
+
+holesAccepting x (Pi tm1 tm2) = holesAccepting x tm1 ++ holesAccepting x tm2
+holesAccepting x (App tm tms) =
+    holesAccepting x tm ++ concatMap (holesAccepting x) tms
+holesAccepting x (Case tm cases) = holesAccepting x tm ++
+    concatMap (\(tm1, tm2) -> holesAccepting x tm1 ++ holesAccepting x tm2) cases
+holesAccepting _ Type = []
 
 testTerm = Ref (UserName "x")
                (Pi (Ref (UserName "A") Type)
