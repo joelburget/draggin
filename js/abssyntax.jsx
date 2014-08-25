@@ -24,7 +24,7 @@ var clearfix = Prims.clearfix;
 
 var AsType = require('./astype.jsx');
 
-var programNodeStyle = {
+var programNodeStyle = RCSS.registerClass({
     display: "inline-block",
     background: colors.nodeBg,
     margin: "5px",
@@ -33,29 +33,24 @@ var programNodeStyle = {
     borderStyle: "solid",
     padding: "5px",
     position: "relative"
-};
+});
 
-var programNodeStyleHover = merge(
-    programNodeStyle,
+var programNodeStyleHover = RCSS.registerClass(merge(
+    programNodeStyle.style,
     { borderColor: colors.borderColor }
-);
+));
 
-var programNodeStyleDrag = merge(
-    programNodeStyle, {
+var programNodeStyleDrag = RCSS.registerClass(merge(
+    programNodeStyle.style, {
         borderColor: colors.borderColor,
         backgroundColor: '#81D9FF'
     }
-);
+));
 
-var programNodeStyleAccepting = merge(
-    programNodeStyle,
+var programNodeStyleAccepting = RCSS.registerClass(merge(
+    programNodeStyle.style,
     { backgroundColor: 'red' }
-);
-
-RCSS.createClass(programNodeStyle);
-RCSS.createClass(programNodeStyleHover);
-RCSS.createClass(programNodeStyleDrag);
-RCSS.createClass(programNodeStyleAccepting);
+));
 
 var c = {
     darkGreen: "#5b9032",
@@ -87,13 +82,13 @@ var nodeColors = {
 
 var typeBannerStyles = {};
 _.each(nodeColors, (v, k) => {
-    typeBannerStyles[k] = RCSS.merge(typeBanner, {
+    typeBannerStyles[k] = RCSS.cascade(typeBanner, {
         backgroundColor: v
     });
-    typeBannerStyles[k] = RCSS.createClass(typeBannerStyles[k]);
+    typeBannerStyles[k] = RCSS.registerClass(typeBannerStyles[k]);
 });
 
-typeBanner = RCSS.createClass(typeBanner);
+typeBanner = RCSS.registerClass(typeBanner);
 
 var NodeMixin = {
     propTypes: {
@@ -312,13 +307,14 @@ window.Pi = React.createClass({
             float: 'left'
         };
 
-        var style = {
-            display: 'table-cell',
-            padding: '10px',
-            float: 'left'
-        };
-        mergeInto(style, clearfix);
-        RCSS.createClass(style);
+        var style = RCSS.cascade({
+                display: 'table-cell',
+                padding: '10px',
+                float: 'left'
+            },
+            clearfix
+        );
+        style = RCSS.registerClass(style);
 
         var name = null;
 
@@ -424,7 +420,7 @@ window.Type = React.createClass({
     }
 });
 
-var casesStyles = RCSS.createClass({});
+var casesStyles = RCSS.registerClass({});
 
 // Case Term [(Term, Term)]
 window.Case = React.createClass({

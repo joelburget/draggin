@@ -30,7 +30,7 @@ var TT = require('./tt.jsx');
 //           | SymRef Int -- ^ Reference to IBC file symbol table (used during serialisation)
 
 
-var searchContainerStyle = RCSS.createClass({
+var searchContainerStyle = RCSS.registerClass({
     height: "100%",
     position: "fixed",
     right: 0,
@@ -43,37 +43,37 @@ var searchContainerStyle = RCSS.createClass({
     background: "white"
 });
 
-var searchResultStyle = RCSS.createClass({
+var searchResultStyle = RCSS.registerClass({
     background: "white",
     borderBottom: `1px solid ${colors.borderColor}`,
     padding: "20px",
     overflowX: "scroll"
 });
 
-var titleStyle = RCSS.createClass({
+var titleStyle = RCSS.registerClass({
     fontSize: "18px"
 });
 
-var nameStyle = RCSS.createClass({
+var nameStyle = RCSS.registerClass({
     color: "#4183C4",
     fontSize: "20px"
 });
 
-var searchResultContainerStyle = RCSS.createClass({
+var searchResultContainerStyle = RCSS.registerClass({
     overflowY: "scroll",
     height: "89%"
 });
 
-var headerStyle = RCSS.createClass({
+var headerStyle = RCSS.registerClass({
     fontWeight: '300',
     margin: '20px'
 });
 
-var headerBoxStyle = RCSS.createClass({
+var headerBoxStyle = RCSS.registerClass({
     borderBottom: `2px solid ${colors.borderColor}`
 });
 
-var searchBoxStyle = RCSS.createClass({
+var searchBoxStyle = RCSS.registerClass({
     margin: '0 20px 20px',
     height: '20px',
     width: '252px'

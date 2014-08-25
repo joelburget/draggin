@@ -3,6 +3,7 @@
  */
 
 var React = require('react');
+var RCSS = require("RCSS");
 var $ = require('jquery');
 
 var ReactART = require('react-art');
@@ -62,6 +63,8 @@ var Func = React.createClass({
 });
 
 var Abs = Strict.AbsSyntax;
+
+RCSS.injectAll();
 
 React.renderComponent(<Search />, document.getElementById("search"));
 React.renderComponent(<Workspace terms={[Abs.testTerm]} />, document.getElementById("main"));
