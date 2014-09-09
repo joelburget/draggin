@@ -3,23 +3,14 @@
 
 module AbsSyntax where
 
-import FFI
-import Prelude hiding (concat, intercalate)
-import Fay.Text hiding (map, concatMap)
-import DOM
+import Data.List (intercalate)
+import Data.String
+import Prelude
+import Haste.Foreign
 
-data Name = UserName Text
+data Name = UserName String
           | MachineName Int
-
-showName :: Name -> Text
-showName (UserName x) = x
-showName (MachineName i) = "MachineName " `append` textInt i
-
-showInt :: Int -> String
-showInt = ffi "%1+''"
-
-textInt :: Int -> Text
-textInt = fromString . showInt
+		  deriving (Show)
 
 data Term = Ref Name Term -- ^ n : t
           | Pi Term Term -- ^ n -> t2
@@ -27,19 +18,27 @@ data Term = Ref Name Term -- ^ n : t
           | Case Term [(Term, Term)]
           | Type
 
-flat :: Term -> Text
-flat (Ref name _) = showName name
-flat (Pi tm1 tm2) = concat [flat tm1, " -> ", flat tm2]
-flat (App (Ref name _) args) = concat [showName name, " ", flattenArgs args]
-flat (App tm args) = concat ["(", flat tm, ") ", flattenArgs args]
+flat :: Term -> String
+flat (Ref (UserName name) Type) = name
+flat (Ref (UserName name) ty) = concat [name, " : ", parenthesize ty]
+flat (Ref mn@(MachineName name) ty) = concat [show mn, " : ", parenthesize ty]
+flat (Pi tm1 tm2) = concat [parenthesize tm1, " -> ", parenthesize tm2]
+flat (App (Ref name _) args) = concat [show name, " ", flattenArgs args]
+flat (App tm args) = concat ["(", parenthesize tm, ") ", flattenArgs args]
 flat (Case tm cases) = concat
     ["(Case ", flat tm, " of ", flattenCases cases, ")"]
+flat Type = "Type"
+
+parenthesize :: Term -> String
+parenthesize tm@Type = flat tm
+parenthesize tm@(Ref (UserName name) Type) = flat tm
+parenthesize tm = concat ["(", flat tm, ")"]
 
 flattenArgs = intercalate " " . map flat
 flattenCases = intercalate " " . map (\(ifTm, thenTm) ->
-    concat ["(", flat ifTm, " => ", flat thenTm, ") "])
+    concat ["(", parenthesize ifTm, " => ", parenthesize thenTm, ") "])
 
-type Lens = [Text]
+type Lens = [String]
 
 -- find all the places in the second term accepting the first
 holesAccepting :: Term -> Term -> [Lens]
